@@ -1,0 +1,420 @@
+@startuml diagrama_clases
+' TicoPack Logistics - Diagrama de clases (v2)
+' Listas por tipo (sin template), constantes const int (sin enum).
+
+title TicoPack Logistics - Diagrama de clases (v2)
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 70
+skinparam packageStyle rectangle
+skinparam ArrowColor #555555
+skinparam ClassBorderColor #888888
+skinparam ClassFontStyle bold
+skinparam PackageBorderColor #AAAAAA
+skinparam PackageFontColor #555555
+hide circle
+
+legend top left
+|<back:#DDEAF6> Integrante 1 </back>| base, centros, clientes, colaboradores, bodegas y sus listas |
+|<back:#E2EFDA> Integrante 2 </back>| paquetes, bitacora, almacenamiento y sus listas |
+|<back:#FCE4D6> Integrante 3 </back>| solicitudes, despachos, reportes y sus listas |
+----
+Rombo negro = composicion (el duenio crea y destruye)
+Flecha normal = asociacion (solo apunta, no hace delete)
+Triangulo = herencia
+Punteada = usa
+----
+Cada relacion "0..*" se guarda en la lista propia de ese tipo
+(ListaClientes, ListaPaquetes, ...). Ver el paquete de listas abajo.
+endlegend
+
+' ============================================================
+' Capa 1: interfaz y utilidades
+' ============================================================
+class Menu #DDEAF6 {
+  -sistema : Sistema*
+  +Menu(sistema : Sistema*)
+  +ejecutar() : void
+  -menuCentros() : void
+  -menuClientes() : void
+  -menuColaboradores() : void
+  -menuBodegas() : void
+  -menuPaquetes() : void
+  -menuSolicitudes() : void
+  -menuDespachos() : void
+  -menuReportes() : void
+}
+
+class Validaciones <<utilidad>> #DDEAF6 {
+  {static} +leerEntero(msg : string, min : int, max : int) : int
+  {static} +leerDouble(msg : string, min : double) : double
+  {static} +leerTexto(msg : string) : string
+  {static} +leerFecha(msg : string) : Fecha
+}
+
+class Reportes <<utilidad>> #FCE4D6 {
+  {static} +historialCliente(c : CentroDistribucion*, cl : Cliente*) : void
+  {static} +clientesPorEnvios(c : CentroDistribucion*) : void
+  {static} +bitacoraPaquete(p : Paquete*) : void
+  {static} +despachoDePaquete(c : CentroDistribucion*, p : Paquete*) : void
+  {static} +ocupacionBodegas(c : CentroDistribucion*) : void
+  {static} +despachosPorColaborador(c : CentroDistribucion*, col : Colaborador*) : void
+}
+
+' ============================================================
+' Capa 2 y 3: nucleo
+' ============================================================
+class Sistema #DDEAF6 {
+  -centros : ListaCentros
+  +agregarCentro(c : CentroDistribucion*) : bool
+  +buscarCentro(codigo : string) : CentroDistribucion*
+  +eliminarCentro(codigo : string) : bool
+  +existePaquete(codigo : string) : bool
+  +existeSolicitud(codigo : string) : bool
+  +existeDespacho(codigo : string) : bool
+  +cargarDatosPrueba() : void
+}
+
+class CentroDistribucion #DDEAF6 {
+  -codigo : string
+  -nombre : string
+  -provincia : string
+  -direccion : string
+  -telefono : string
+  -clientes : ListaClientes
+  -colaboradores : ListaColaboradores
+  -bodegas : ListaBodegas
+  -paquetes : ListaPaquetes
+  -solicitudes : ListaSolicitudes
+  -despachos : ListaDespachos
+  .. Integrante 1 ..
+  +agregarCliente(c : Cliente*) : bool
+  +buscarCliente(id : string) : Cliente*
+  +eliminarCliente(id : string) : bool
+  +agregarColaborador(c : Colaborador*) : bool
+  +buscarColaborador(id : string) : Colaborador*
+  +eliminarColaborador(id : string) : bool
+  +agregarBodega(b : Bodega*) : bool
+  +buscarBodega(codigo : string) : Bodega*
+  +eliminarBodega(codigo : string) : bool
+  +getClientes() : ListaClientes*
+  +getBodegas() : ListaBodegas*
+  +puedeEliminarse() : bool
+  +mostrar() : void
+  .. Integrante 2 ..
+  +agregarPaquete(p : Paquete*) : bool
+  +buscarPaquete(codigo : string) : Paquete*
+  +eliminarPaquete(codigo : string) : bool
+  +recomendarBodega(categoria : int) : Bodega*
+  +almacenarPaquete(p : Paquete*, b : Bodega*, fila : int, columna : int, fecha : Fecha, col : Colaborador*) : bool
+  +reubicarPaquete(p : Paquete*, b : Bodega*, fila : int, columna : int) : bool
+  +registrarIncidencia(p : Paquete*, fecha : Fecha, col : Colaborador*) : bool
+  +resolverIncidencia(p : Paquete*, fecha : Fecha, col : Colaborador*) : bool
+  .. Integrante 3 ..
+  +buscarSolicitud(codigo : string) : SolicitudEnvio*
+  +buscarDespacho(codigo : string) : Despacho*
+  +crearSolicitud(s : SolicitudEnvio*) : bool
+  +tieneSolicitudPendiente(p : Paquete*) : bool
+  +aprobarSolicitud(s : SolicitudEnvio*, codDespacho : string, fecha : Fecha) : Despacho*
+  +rechazarSolicitud(s : SolicitudEnvio*) : bool
+  +anularSolicitud(s : SolicitudEnvio*) : bool
+  +finalizarDespacho(d : Despacho*, fecha : Fecha) : bool
+  +getSolicitudes() : ListaSolicitudes*
+  +getDespachos() : ListaDespachos*
+}
+
+' ============================================================
+' Capa 4: entidades del centro
+' ============================================================
+abstract class Cliente #DDEAF6 {
+  #identificacion : string
+  #nombre : string
+  #telefono : string
+  #correo : string
+  {abstract} +getTipo() : string
+  +aplicarDescuento(costoBase : double) : double <<virtual>>
+  +mostrar() : void <<virtual>>
+  +~Cliente() <<virtual>>
+}
+
+class Colaborador #DDEAF6 {
+  -identificacion : string
+  -nombreCompleto : string
+  -fechaIngreso : Fecha
+  -puesto : string
+  +mostrar() : void
+}
+
+class Bodega #DDEAF6 {
+  -codigo : string
+  -nombre : string
+  -tipo : int
+  -filas : int
+  -columnas : int
+  -matriz : Celda**
+  +Bodega(cod : string, nom : string, tipo : int, f : int, c : int)
+  +~Bodega()
+  +posicionValida(f : int, c : int) : bool
+  +estaLibre(f : int, c : int) : bool
+  +asignar(f : int, c : int, p : Paquete*) : bool
+  +liberar(f : int, c : int) : void
+  +getPaquete(f : int, c : int) : Paquete*
+  +totalCeldas() : int
+  +celdasOcupadas() : int
+  +porcentajeOcupacion() : double
+  +porcentajeDisponible() : double
+  +primeraCeldaLibre(f : int&, c : int&) : bool
+  +mostrarMatriz() : void
+}
+
+class Paquete #E2EFDA {
+  -codigo : string
+  -descripcion : string
+  -peso : double
+  -categoria : int
+  -estado : int
+  -codigoCentro : string
+  -propietario : Cliente*
+  -bodega : Bodega*
+  -fila : int
+  -columna : int
+  -bitacora : ListaBitacora
+  -tieneDespacho : bool
+  +~Paquete()
+  +puedeCambiarA(nuevo : int) : bool
+  +cambiarEstado(nuevo : int, fecha : Fecha, responsable : Colaborador*) : bool
+  +asignarUbicacion(b : Bodega*, f : int, c : int) : void
+  +quitarUbicacion() : void
+  +tieneUbicacion() : bool
+  +tieneRegistroDe(col : Colaborador*) : bool
+  +getTieneDespacho() : bool
+  +setTieneDespacho(valor : bool) : void
+  +mostrar() : void
+  +mostrarBitacora() : void
+}
+
+class SolicitudEnvio #FCE4D6 {
+  -codigo : string
+  -cliente : Cliente*
+  -paquete : Paquete*
+  -responsable : Colaborador*
+  -codigoCentroOrigen : string
+  -destino : string
+  -fecha : Fecha
+  -costoEstimado : double
+  -estado : int
+  +calcularCosto() : double
+  +cambiarEstado(nuevo : int) : bool
+  +mostrar() : void
+}
+
+class Despacho #FCE4D6 {
+  -codigo : string
+  -solicitud : SolicitudEnvio*
+  -paquete : Paquete*
+  -cliente : Cliente*
+  -responsable : Colaborador*
+  -codigoCentroOrigen : string
+  -destino : string
+  -fecha : Fecha
+  -estado : int
+  +finalizar() : bool
+  +mostrar() : void
+}
+
+' ============================================================
+' Capa 5: detalle
+' ============================================================
+class ClienteFisico #DDEAF6 {
+  +getTipo() : string <<override>>
+  +mostrar() : void <<override>>
+}
+
+class ClienteEmpresa #DDEAF6 {
+  -actividadEconomica : string
+  -porcentajeDescuento : double
+  +getTipo() : string <<override>>
+  +aplicarDescuento(costoBase : double) : double <<override>>
+  +mostrar() : void <<override>>
+}
+
+class Celda #DDEAF6 {
+  -paquete : Paquete*
+  +estaLibre() : bool
+  +ocupar(p : Paquete*) : void
+  +liberar() : void
+  +getPaquete() : Paquete*
+}
+
+class RegistroBitacora #E2EFDA {
+  -estadoAnterior : int
+  -estadoNuevo : int
+  -fecha : Fecha
+  -responsable : Colaborador*
+  +mostrar() : void
+}
+
+class Tarifas <<utilidad>> #FCE4D6 {
+  {static} +TARIFA_GENERAL : const double
+  {static} +TARIFA_FRAGIL : const double
+  {static} +TARIFA_TECNOLOGIA : const double
+  {static} +TARIFA_DOCUMENTOS : const double
+  {static} +obtener(categoria : int) : double
+}
+
+' ============================================================
+' Relaciones principales
+' ============================================================
+Menu -down-> "1" Sistema
+Menu .left.> Validaciones
+Menu .right.> Reportes
+Reportes .down.> CentroDistribucion
+
+Sistema *-down- "0..*" CentroDistribucion
+
+' Fila de operaciones (de izquierda a derecha)
+Despacho -right-> "1" SolicitudEnvio
+SolicitudEnvio -right-> "1" Paquete
+Paquete -right-> "0..1" Bodega
+
+CentroDistribucion *-down- "0..*" Despacho
+CentroDistribucion *-down- "0..*" SolicitudEnvio
+CentroDistribucion *-down- "0..*" Paquete
+CentroDistribucion *-down- "0..*" Bodega
+CentroDistribucion *-down- "0..*" Cliente
+CentroDistribucion *-down- "0..*" Colaborador
+
+' Fila de abajo: a quienes apuntan todos
+Despacho -[norank]-> "1" Paquete
+Despacho -down-> "1" Cliente
+Despacho -down-> "1" Colaborador : responsable
+SolicitudEnvio -down-> "1" Cliente
+SolicitudEnvio -down-> "1" Colaborador : responsable
+SolicitudEnvio .down.> Tarifas
+Paquete -down-> "1" Cliente : propietario
+Paquete *-down- "0..*" RegistroBitacora : bitacora
+RegistroBitacora -left-> "1" Colaborador : responsable
+Bodega *-down- "1..*" Celda : matriz
+Celda -up-> "0..1" Paquete
+
+Cliente <|-down- ClienteFisico
+Cliente <|-down- ClienteEmpresa
+
+Cliente -[hidden]right- Tarifas
+Tarifas -[hidden]right- Colaborador
+
+' ============================================================
+' Abajo: listas enlazadas y constantes
+' ============================================================
+package "Listas enlazadas propias (una por tipo, sin template)" as Listas {
+
+  class ListaClientes #DDEAF6 {
+    -primero : NodoCliente*
+    -cantidad : int
+    +ListaClientes()
+    +~ListaClientes()
+    +insertarFinal(c : Cliente*) : void
+    +buscar(id : string) : Cliente*
+    +eliminar(c : Cliente*) : bool
+    +getPrimero() : NodoCliente*
+    +getCantidad() : int
+    +estaVacia() : bool
+  }
+
+  class NodoCliente #DDEAF6 {
+    -dato : Cliente*
+    -siguiente : NodoCliente*
+    +NodoCliente(dato : Cliente*)
+    +getDato() : Cliente*
+    +getSiguiente() : NodoCliente*
+    +setSiguiente(n : NodoCliente*) : void
+  }
+
+  ListaClientes *-right- "0..*" NodoCliente
+
+  note bottom of ListaClientes
+    <b>Modelo</b> que copian todas las listas:
+    cada ListaX tiene su NodoX y los mismos
+    metodos (insertarFinal, buscar, eliminar,
+    getPrimero, getCantidad, estaVacia).
+    El destructor borra solo los nodos.
+  end note
+
+  class ListaCentros #DDEAF6 {
+    +buscar(codigo : string) : CentroDistribucion*
+  }
+  class ListaColaboradores #DDEAF6 {
+    +buscar(id : string) : Colaborador*
+  }
+  class ListaBodegas #DDEAF6 {
+    +buscar(codigo : string) : Bodega*
+  }
+  class ListaPaquetes #E2EFDA {
+    +buscar(codigo : string) : Paquete*
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneEnBodega(b : Bodega*) : bool
+    +colaboradorEnBitacoras(col : Colaborador*) : bool
+  }
+  class ListaBitacora #E2EFDA {
+    +insertarFinal(r : RegistroBitacora*) : void
+    +tieneRegistroDe(col : Colaborador*) : bool
+    (sin buscar ni eliminar)
+  }
+  class ListaSolicitudes #FCE4D6 {
+    +buscar(codigo : string) : SolicitudEnvio*
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneDeResponsable(col : Colaborador*) : bool
+    +tieneDePaquete(p : Paquete*) : bool
+    +tienePendiente(p : Paquete*) : bool
+  }
+  class ListaDespachos #FCE4D6 {
+    +buscar(codigo : string) : Despacho*
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneDeResponsable(col : Colaborador*) : bool
+  }
+
+  NodoCliente -[hidden]right- ListaCentros
+  ListaCentros -[hidden]right- ListaColaboradores
+  ListaColaboradores -[hidden]right- ListaBodegas
+  ListaBodegas -[hidden]down- ListaPaquetes
+  ListaPaquetes -[hidden]right- ListaBitacora
+  ListaBitacora -[hidden]right- ListaSolicitudes
+  ListaSolicitudes -[hidden]right- ListaDespachos
+}
+
+class "Constantes.h" as Constantes <<const int globales>> #DDEAF6 {
+  .. Categorias / tipos de bodega ..
+  GENERAL = 1, FRAGIL = 2, TECNOLOGIA = 3, DOCUMENTOS = 4
+  .. Estados del paquete ..
+  RECIBIDO = 0, ALMACENADO = 1, EN_TRANSITO = 2,
+  ENTREGADO = 3, INCIDENCIA = 4
+  .. Estados de la solicitud ..
+  PENDIENTE = 0, APROBADA = 1, RECHAZADA = 2, ANULADA = 3
+  .. Estados del despacho ..
+  EN_PROCESO = 0, FINALIZADO = 1
+  __ Constantes.cpp __
+  +textoCategoria(c : int) : string
+  +textoEstadoPaquete(e : int) : string
+  +textoEstadoSolicitud(e : int) : string
+  +textoEstadoDespacho(e : int) : string
+}
+
+class Fecha #DDEAF6 {
+  -dia : int
+  -mes : int
+  -anio : int
+  -hora : int
+  -minuto : int
+  +Fecha(d : int, m : int, a : int, h : int, min : int)
+  +toString() : string
+}
+
+' Las listas y constantes van debajo de todo
+ClienteEmpresa -[hidden]down- ListaClientes
+RegistroBitacora -[hidden]down- Constantes
+Constantes -[hidden]right- Fecha
+
+@enduml

@@ -1,0 +1,523 @@
+@startuml diagrama_clases_entrega
+
+title TicoPack Logistics - Diagrama de clases
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 70
+skinparam packageStyle rectangle
+skinparam ArrowColor #555555
+skinparam ClassBorderColor #888888
+skinparam ClassBackgroundColor #F7F9FC
+skinparam ClassHeaderBackgroundColor #E8EEF6
+skinparam ClassFontStyle bold
+skinparam PackageBorderColor #AAAAAA
+skinparam PackageFontColor #555555
+hide circle
+
+
+' ============================================================
+' Interfaz y utilidades
+' ============================================================
+class Menu {
+  -sistema : Sistema*
+  +Menu(sistema : Sistema*)
+  +ejecutar() : void
+  -menuCentros() : void
+  -menuClientes() : void
+  -menuColaboradores() : void
+  -menuBodegas() : void
+  -menuPaquetes() : void
+  -menuSolicitudes() : void
+  -menuDespachos() : void
+  -menuReportes() : void
+}
+
+class Validaciones <<utilidad>> {
+  {static} +leerEntero(msg : string, min : int, max : int) : int
+  {static} +leerDouble(msg : string, min : double) : double
+  {static} +leerTexto(msg : string) : string
+  {static} +leerFecha(msg : string) : Fecha
+}
+
+class Reportes <<utilidad>> {
+  {static} +historialCliente(c : CentroDistribucion*, cl : Cliente*) : void
+  {static} +clientesPorEnvios(c : CentroDistribucion*) : void
+  {static} +bitacoraPaquete(p : Paquete*) : void
+  {static} +despachoDePaquete(c : CentroDistribucion*, p : Paquete*) : void
+  {static} +ocupacionBodegas(c : CentroDistribucion*) : void
+  {static} +despachosPorColaborador(c : CentroDistribucion*, col : Colaborador*) : void
+}
+
+' ============================================================
+' Nucleo
+' ============================================================
+class Sistema {
+  -centros : ListaCentros
+  +agregarCentro(c : CentroDistribucion*) : bool
+  +buscarCentro(codigo : string) : CentroDistribucion*
+  +eliminarCentro(codigo : string) : bool
+  +existePaquete(codigo : string) : bool
+  +existeSolicitud(codigo : string) : bool
+  +existeDespacho(codigo : string) : bool
+  +cargarDatosPrueba() : void
+}
+
+class CentroDistribucion {
+  -codigo : string
+  -nombre : string
+  -provincia : string
+  -direccion : string
+  -telefono : string
+  -clientes : ListaClientes
+  -colaboradores : ListaColaboradores
+  -bodegas : ListaBodegas
+  -paquetes : ListaPaquetes
+  -solicitudes : ListaSolicitudes
+  -despachos : ListaDespachos
+  .. Clientes, colaboradores y bodegas ..
+  +agregarCliente(c : Cliente*) : bool
+  +buscarCliente(id : string) : Cliente*
+  +eliminarCliente(id : string) : bool
+  +agregarColaborador(c : Colaborador*) : bool
+  +buscarColaborador(id : string) : Colaborador*
+  +eliminarColaborador(id : string) : bool
+  +agregarBodega(b : Bodega*) : bool
+  +buscarBodega(codigo : string) : Bodega*
+  +eliminarBodega(codigo : string) : bool
+  +getClientes() : ListaClientes*
+  +getBodegas() : ListaBodegas*
+  +puedeEliminarse() : bool
+  +mostrar() : void
+  .. Paquetes y almacenamiento ..
+  +agregarPaquete(p : Paquete*) : bool
+  +buscarPaquete(codigo : string) : Paquete*
+  +eliminarPaquete(codigo : string) : bool
+  +recomendarBodega(categoria : int) : Bodega*
+  +almacenarPaquete(p : Paquete*, b : Bodega*, fila : int, columna : int, fecha : Fecha, col : Colaborador*) : bool
+  +reubicarPaquete(p : Paquete*, b : Bodega*, fila : int, columna : int) : bool
+  +registrarIncidencia(p : Paquete*, fecha : Fecha, col : Colaborador*) : bool
+  +resolverIncidencia(p : Paquete*, fecha : Fecha, col : Colaborador*) : bool
+  .. Solicitudes y despachos ..
+  +buscarSolicitud(codigo : string) : SolicitudEnvio*
+  +buscarDespacho(codigo : string) : Despacho*
+  +crearSolicitud(s : SolicitudEnvio*) : bool
+  +tieneSolicitudPendiente(p : Paquete*) : bool
+  +aprobarSolicitud(s : SolicitudEnvio*, codDespacho : string, fecha : Fecha) : Despacho*
+  +rechazarSolicitud(s : SolicitudEnvio*) : bool
+  +anularSolicitud(s : SolicitudEnvio*) : bool
+  +finalizarDespacho(d : Despacho*, fecha : Fecha) : bool
+  +getSolicitudes() : ListaSolicitudes*
+  +getDespachos() : ListaDespachos*
+}
+
+' ============================================================
+' Entidades
+' ============================================================
+abstract class Cliente {
+  #identificacion : string
+  #nombre : string
+  #telefono : string
+  #correo : string
+  {abstract} +getTipo() : string
+  +aplicarDescuento(costoBase : double) : double <<virtual>>
+  +mostrar() : void <<virtual>>
+  +~Cliente() <<virtual>>
+}
+
+class Colaborador {
+  -identificacion : string
+  -nombreCompleto : string
+  -fechaIngreso : Fecha
+  -puesto : string
+  +mostrar() : void
+}
+
+class Bodega {
+  -codigo : string
+  -nombre : string
+  -tipo : int
+  -filas : int
+  -columnas : int
+  -matriz : Celda**
+  +Bodega(cod : string, nom : string, tipo : int, f : int, c : int)
+  +~Bodega()
+  +posicionValida(f : int, c : int) : bool
+  +estaLibre(f : int, c : int) : bool
+  +asignar(f : int, c : int, p : Paquete*) : bool
+  +liberar(f : int, c : int) : void
+  +getPaquete(f : int, c : int) : Paquete*
+  +totalCeldas() : int
+  +celdasOcupadas() : int
+  +porcentajeOcupacion() : double
+  +porcentajeDisponible() : double
+  +primeraCeldaLibre(f : int&, c : int&) : bool
+  +mostrarMatriz() : void
+}
+
+class Paquete {
+  -codigo : string
+  -descripcion : string
+  -peso : double
+  -categoria : int
+  -estado : int
+  -codigoCentro : string
+  -propietario : Cliente*
+  -bodega : Bodega*
+  -fila : int
+  -columna : int
+  -bitacora : ListaBitacora
+  -tieneDespacho : bool
+  +~Paquete()
+  +puedeCambiarA(nuevo : int) : bool
+  +cambiarEstado(nuevo : int, fecha : Fecha, responsable : Colaborador*) : bool
+  +asignarUbicacion(b : Bodega*, f : int, c : int) : void
+  +quitarUbicacion() : void
+  +tieneUbicacion() : bool
+  +tieneRegistroDe(col : Colaborador*) : bool
+  +getTieneDespacho() : bool
+  +setTieneDespacho(valor : bool) : void
+  +mostrar() : void
+  +mostrarBitacora() : void
+}
+
+class SolicitudEnvio {
+  -codigo : string
+  -cliente : Cliente*
+  -paquete : Paquete*
+  -responsable : Colaborador*
+  -codigoCentroOrigen : string
+  -destino : string
+  -fecha : Fecha
+  -costoEstimado : double
+  -estado : int
+  +calcularCosto() : double
+  +cambiarEstado(nuevo : int) : bool
+  +mostrar() : void
+}
+
+class Despacho {
+  -codigo : string
+  -solicitud : SolicitudEnvio*
+  -paquete : Paquete*
+  -cliente : Cliente*
+  -responsable : Colaborador*
+  -codigoCentroOrigen : string
+  -destino : string
+  -fecha : Fecha
+  -estado : int
+  +finalizar() : bool
+  +mostrar() : void
+}
+
+' ============================================================
+' Detalle
+' ============================================================
+class ClienteFisico {
+  +getTipo() : string <<override>>
+  +mostrar() : void <<override>>
+}
+
+class ClienteEmpresa {
+  -actividadEconomica : string
+  -porcentajeDescuento : double
+  +getTipo() : string <<override>>
+  +aplicarDescuento(costoBase : double) : double <<override>>
+  +mostrar() : void <<override>>
+}
+
+class Celda {
+  -paquete : Paquete*
+  +estaLibre() : bool
+  +ocupar(p : Paquete*) : void
+  +liberar() : void
+  +getPaquete() : Paquete*
+}
+
+class RegistroBitacora {
+  -estadoAnterior : int
+  -estadoNuevo : int
+  -fecha : Fecha
+  -responsable : Colaborador*
+  +mostrar() : void
+}
+
+class Tarifas <<utilidad>> {
+  {static} +TARIFA_GENERAL : const double
+  {static} +TARIFA_FRAGIL : const double
+  {static} +TARIFA_TECNOLOGIA : const double
+  {static} +TARIFA_DOCUMENTOS : const double
+  {static} +obtener(categoria : int) : double
+}
+
+' ============================================================
+' Relaciones principales
+' ============================================================
+Menu -down-> "1" Sistema
+Menu .left.> Validaciones
+Menu .right.> Reportes
+Reportes .down.> CentroDistribucion
+
+Sistema *-down- "0..*" CentroDistribucion
+
+Despacho -right-> "1" SolicitudEnvio
+SolicitudEnvio -right-> "1" Paquete
+Paquete -right-> "0..1" Bodega
+
+CentroDistribucion *-down- "0..*" Despacho
+CentroDistribucion *-down- "0..*" SolicitudEnvio
+CentroDistribucion *-down- "0..*" Paquete
+CentroDistribucion *-down- "0..*" Bodega
+CentroDistribucion *-down- "0..*" Cliente
+CentroDistribucion *-down- "0..*" Colaborador
+
+Despacho -[norank]-> "1" Paquete
+Despacho -down-> "1" Cliente
+Despacho -down-> "1" Colaborador : responsable
+SolicitudEnvio -down-> "1" Cliente
+SolicitudEnvio -down-> "1" Colaborador : responsable
+SolicitudEnvio .down.> Tarifas
+Paquete -down-> "1" Cliente : propietario
+Paquete *-down- "0..*" RegistroBitacora : bitacora
+RegistroBitacora -left-> "1" Colaborador : responsable
+Bodega *-down- "1..*" Celda : matriz
+Celda -up-> "0..1" Paquete
+
+Cliente <|-down- ClienteFisico
+Cliente <|-down- ClienteEmpresa
+
+Cliente -[hidden]right- Tarifas
+Tarifas -[hidden]right- Colaborador
+
+' ============================================================
+' Listas enlazadas propias
+' ============================================================
+package "Listas enlazadas" as Listas {
+  class ListaCentros {
+    -primero : NodoCentro*
+    -cantidad : int
+    +ListaCentros()
+    +~ListaCentros()
+    +insertarFinal(c : CentroDistribucion*) : void
+    +buscar(codigo : string) : CentroDistribucion*
+    +eliminar(c : CentroDistribucion*) : bool
+    +getPrimero() : NodoCentro*
+    +getCantidad() : int
+    +estaVacia() : bool
+  }
+  class NodoCentro {
+    -dato : CentroDistribucion*
+    -siguiente : NodoCentro*
+    +NodoCentro(dato : CentroDistribucion*)
+    +getDato() : CentroDistribucion*
+    +getSiguiente() : NodoCentro*
+    +setSiguiente(n : NodoCentro*) : void
+  }
+  ListaCentros *-right- "0..*" NodoCentro
+
+  class ListaClientes {
+    -primero : NodoCliente*
+    -cantidad : int
+    +ListaClientes()
+    +~ListaClientes()
+    +insertarFinal(c : Cliente*) : void
+    +buscar(id : string) : Cliente*
+    +eliminar(c : Cliente*) : bool
+    +getPrimero() : NodoCliente*
+    +getCantidad() : int
+    +estaVacia() : bool
+  }
+  class NodoCliente {
+    -dato : Cliente*
+    -siguiente : NodoCliente*
+    +NodoCliente(dato : Cliente*)
+    +getDato() : Cliente*
+    +getSiguiente() : NodoCliente*
+    +setSiguiente(n : NodoCliente*) : void
+  }
+  ListaClientes *-right- "0..*" NodoCliente
+
+  class ListaColaboradores {
+    -primero : NodoColaborador*
+    -cantidad : int
+    +ListaColaboradores()
+    +~ListaColaboradores()
+    +insertarFinal(c : Colaborador*) : void
+    +buscar(id : string) : Colaborador*
+    +eliminar(c : Colaborador*) : bool
+    +getPrimero() : NodoColaborador*
+    +getCantidad() : int
+    +estaVacia() : bool
+  }
+  class NodoColaborador {
+    -dato : Colaborador*
+    -siguiente : NodoColaborador*
+    +NodoColaborador(dato : Colaborador*)
+    +getDato() : Colaborador*
+    +getSiguiente() : NodoColaborador*
+    +setSiguiente(n : NodoColaborador*) : void
+  }
+  ListaColaboradores *-right- "0..*" NodoColaborador
+
+  class ListaBodegas {
+    -primero : NodoBodega*
+    -cantidad : int
+    +ListaBodegas()
+    +~ListaBodegas()
+    +insertarFinal(b : Bodega*) : void
+    +buscar(codigo : string) : Bodega*
+    +eliminar(b : Bodega*) : bool
+    +getPrimero() : NodoBodega*
+    +getCantidad() : int
+    +estaVacia() : bool
+  }
+  class NodoBodega {
+    -dato : Bodega*
+    -siguiente : NodoBodega*
+    +NodoBodega(dato : Bodega*)
+    +getDato() : Bodega*
+    +getSiguiente() : NodoBodega*
+    +setSiguiente(n : NodoBodega*) : void
+  }
+  ListaBodegas *-right- "0..*" NodoBodega
+
+  class ListaPaquetes {
+    -primero : NodoPaquete*
+    -cantidad : int
+    +ListaPaquetes()
+    +~ListaPaquetes()
+    +insertarFinal(p : Paquete*) : void
+    +buscar(codigo : string) : Paquete*
+    +eliminar(p : Paquete*) : bool
+    +getPrimero() : NodoPaquete*
+    +getCantidad() : int
+    +estaVacia() : bool
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneEnBodega(b : Bodega*) : bool
+    +colaboradorEnBitacoras(col : Colaborador*) : bool
+  }
+  class NodoPaquete {
+    -dato : Paquete*
+    -siguiente : NodoPaquete*
+    +NodoPaquete(dato : Paquete*)
+    +getDato() : Paquete*
+    +getSiguiente() : NodoPaquete*
+    +setSiguiente(n : NodoPaquete*) : void
+  }
+  ListaPaquetes *-right- "0..*" NodoPaquete
+
+  class ListaBitacora {
+    -primero : NodoBitacora*
+    -cantidad : int
+    +ListaBitacora()
+    +~ListaBitacora()
+    +insertarFinal(r : RegistroBitacora*) : void
+    +getPrimero() : NodoBitacora*
+    +getCantidad() : int
+    +estaVacia() : bool
+    +tieneRegistroDe(col : Colaborador*) : bool
+  }
+  class NodoBitacora {
+    -dato : RegistroBitacora*
+    -siguiente : NodoBitacora*
+    +NodoBitacora(dato : RegistroBitacora*)
+    +getDato() : RegistroBitacora*
+    +getSiguiente() : NodoBitacora*
+    +setSiguiente(n : NodoBitacora*) : void
+  }
+  ListaBitacora *-right- "0..*" NodoBitacora
+
+  class ListaSolicitudes {
+    -primero : NodoSolicitud*
+    -cantidad : int
+    +ListaSolicitudes()
+    +~ListaSolicitudes()
+    +insertarFinal(s : SolicitudEnvio*) : void
+    +buscar(codigo : string) : SolicitudEnvio*
+    +eliminar(s : SolicitudEnvio*) : bool
+    +getPrimero() : NodoSolicitud*
+    +getCantidad() : int
+    +estaVacia() : bool
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneDeResponsable(col : Colaborador*) : bool
+    +tieneDePaquete(p : Paquete*) : bool
+    +tienePendiente(p : Paquete*) : bool
+  }
+  class NodoSolicitud {
+    -dato : SolicitudEnvio*
+    -siguiente : NodoSolicitud*
+    +NodoSolicitud(dato : SolicitudEnvio*)
+    +getDato() : SolicitudEnvio*
+    +getSiguiente() : NodoSolicitud*
+    +setSiguiente(n : NodoSolicitud*) : void
+  }
+  ListaSolicitudes *-right- "0..*" NodoSolicitud
+
+  class ListaDespachos {
+    -primero : NodoDespacho*
+    -cantidad : int
+    +ListaDespachos()
+    +~ListaDespachos()
+    +insertarFinal(d : Despacho*) : void
+    +buscar(codigo : string) : Despacho*
+    +eliminar(d : Despacho*) : bool
+    +getPrimero() : NodoDespacho*
+    +getCantidad() : int
+    +estaVacia() : bool
+    +tieneDeCliente(c : Cliente*) : bool
+    +tieneDeResponsable(col : Colaborador*) : bool
+  }
+  class NodoDespacho {
+    -dato : Despacho*
+    -siguiente : NodoDespacho*
+    +NodoDespacho(dato : Despacho*)
+    +getDato() : Despacho*
+    +getSiguiente() : NodoDespacho*
+    +setSiguiente(n : NodoDespacho*) : void
+  }
+  ListaDespachos *-right- "0..*" NodoDespacho
+
+  NodoCentro -[hidden]right- ListaClientes
+  ListaCentros -[hidden]down- ListaColaboradores
+  NodoColaborador -[hidden]right- ListaBodegas
+  ListaColaboradores -[hidden]down- ListaPaquetes
+  NodoPaquete -[hidden]right- ListaBitacora
+  ListaPaquetes -[hidden]down- ListaSolicitudes
+  NodoSolicitud -[hidden]right- ListaDespachos
+}
+
+class "Constantes.h" as Constantes <<const int globales>> {
+  .. Categorias / tipos de bodega ..
+  GENERAL = 1, FRAGIL = 2, TECNOLOGIA = 3, DOCUMENTOS = 4
+  .. Estados del paquete ..
+  RECIBIDO = 0, ALMACENADO = 1, EN_TRANSITO = 2,
+  ENTREGADO = 3, INCIDENCIA = 4
+  .. Estados de la solicitud ..
+  PENDIENTE = 0, APROBADA = 1, RECHAZADA = 2, ANULADA = 3
+  .. Estados del despacho ..
+  EN_PROCESO = 0, FINALIZADO = 1
+  __ Constantes.cpp __
+  +textoCategoria(c : int) : string
+  +textoEstadoPaquete(e : int) : string
+  +textoEstadoSolicitud(e : int) : string
+  +textoEstadoDespacho(e : int) : string
+}
+
+class Fecha {
+  -dia : int
+  -mes : int
+  -anio : int
+  -hora : int
+  -minuto : int
+  +Fecha(d : int, m : int, a : int, h : int, min : int)
+  +toString() : string
+}
+
+' Las listas y constantes van debajo de todo
+ClienteEmpresa -[hidden]down- ListaCentros
+RegistroBitacora -[hidden]down- Constantes
+Constantes -[hidden]right- Fecha
+
+@enduml

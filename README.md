@@ -6,11 +6,20 @@
 >
 > Es como el README del proyecto con indicaciones generales xd
 
+> **Versión 2 (25 oct):** se ajustó todo al nivel de lo visto en clase (semanas 9 a 15).
+> Cambios principales:
+> - **Sin plantillas (`template`)**: cada colección tiene su propia lista (`ListaClientes`, `ListaPaquetes`, …), como en los ejemplos del curso.
+> - **Sin `enum`**: los estados y categorías son constantes `const int` en `Constantes.h`.
+> - `Tarifas` corregida para que compile (los `static const double` se definen en el `.cpp`).
+> - `Paquete::puedeCambiarA` usa una tabla local en vez de un atributo `static`.
+> - Nueva sección de **dependencias entre integrantes** ([3.1](#31-dependencias-entre-integrantes)) y calendario actualizado.
+> - Diagrama actualizado: `diagrama_clases.puml` (fuente PlantUML) y `diagrama_clases.png`. `UML Prototipo.png` es la versión vieja (con `Lista<T>` y `enum`) y se puede borrar.
+
 ---
 
 ## Índice
 
-1. [Resumen](#1-resumen-del-enunciado)
+1. [Resumen](#1-resumen)
 2. [Reglas del negocio](#2-reglas-del-negocio-lo-que-el-programa-debe-validar)
 3. [División del trabajo](#3-división-del-trabajo)
 4. [Explicación de cada clase](#4-explicación-de-cada-clase)
@@ -48,9 +57,10 @@
 ### Reglas generales obligatorias
 
 - **Prohibido usar la STL** para colecciones u ordenamientos: nada de `vector`, `list`, `map`, `array`, `deque` ni `sort`.
-- Sí se puede usar `iostream`, `string` y bibliotecas básicas vistas en clase.
-- Todas las colecciones que crecen son **listas enlazadas propias**, hechas con `new` y `delete`.
-- Cada bodega tiene una **matriz dinámica** (`Celda**`) creada con `new`.
+- Sí se puede usar `iostream`, `string`, `sstream`, `iomanip` y bibliotecas básicas vistas en clase.
+- Todas las colecciones que crecen son **listas enlazadas propias, una por tipo** (`ListaClientes`, `ListaPaquetes`, …), hechas con `new` y `delete`, igual que `ListaMateriales` (semana 12) y `ListaEstudiantes` (semana 11).
+- **No usamos plantillas (`template`) ni `enum`**, porque no se vieron en el curso y el enunciado pide hacer las listas "tal como se ha trabajado en el curso".
+- Cada bodega tiene una **matriz dinámica** (`Celda**`) creada con `new`, igual que `MatrizDinamica` (semana 14).
 - Hay que usar **herencia**: `Cliente` → `ClienteFisico` / `ClienteEmpresa`.
 - **Si el programa no compila, la nota es 0.**
 - El programa **nunca debe caerse** por datos inválidos, por ejemplo si escriben letras donde va un número.
@@ -78,12 +88,12 @@
 
 ### 2.2 Categorías, tipos de bodega y tarifas
 
-| Código | Categoría / tipo de bodega | Tarifa por kg |
-|---|---|---|
-| 1 | General | ¢1 500 |
-| 2 | Frágil | ¢2 000 |
-| 3 | Tecnología | ¢2 500 |
-| 4 | Documentos | ¢1 000 |
+| Código | Constante | Categoría / tipo de bodega | Tarifa por kg |
+|---|---|---|---|
+| 1 | `GENERAL` | General | ¢1 500 |
+| 2 | `FRAGIL` | Frágil | ¢2 000 |
+| 3 | `TECNOLOGIA` | Tecnología | ¢2 500 |
+| 4 | `DOCUMENTOS` | Documentos | ¢1 000 |
 
 - Usamos **los mismos números** para la categoría del paquete y el tipo de bodega. Así, la compatibilidad es simplemente `bodega->getTipo() == paquete->getCategoria()`.
 - **Costo:** `costoBase = peso × tarifa`. Si el cliente es empresa: `costoFinal = costoBase − costoBase × descuento / 100`.
@@ -145,9 +155,11 @@ PENDIENTE ──► APROBADA   (crea el despacho)
 | Centro | No tiene clientes, colaboradores, bodegas, paquetes, solicitudes ni despachos |
 | Cliente | No tiene paquetes, solicitudes ni despachos |
 | Colaborador | No es responsable de ninguna solicitud, despacho ni registro de bitácora |
-| Bodega | Todas sus celdas están libres |
+| Bodega | Todas sus celdas están libres y ningún paquete la tiene asignada |
 | Paquete | Está *Recibido*, no tiene celda y no tiene solicitudes ni despachos |
 | Solicitud, despacho, bitácora | **Nunca se eliminan** |
+
+> Varias de estas reglas necesitan datos de otro integrante. Ver [3.1](#31-dependencias-entre-integrantes).
 
 ### 2.7 Validaciones de datos
 
@@ -165,20 +177,43 @@ PENDIENTE ──► APROBADA   (crea el despacho)
 | | Integrante 1 | Integrante 2 | Integrante 3 |
 |---|---|---|---|
 | **Tema** | Base, centros, personas, bodegas | Paquetes y almacenamiento | Solicitudes, despachos y reportes |
-| **Clases** | `Lista<T>`, `Nodo<T>`, `Fecha`, `Validaciones`, `Constantes.h`, `Sistema`, `CentroDistribucion` (parte 1), `Cliente`, `ClienteFisico`, `ClienteEmpresa`, `Colaborador`, `Bodega`, `Celda`, `Menu` (menú principal) | `Paquete`, `RegistroBitacora`, `CentroDistribucion` (parte 2) | `Tarifas`, `SolicitudEnvio`, `Despacho`, `Reportes`, `CentroDistribucion` (parte 3) |
+| **Clases** | `Fecha`, `Validaciones`, `Constantes`, `Sistema`, `CentroDistribucion` (parte 1), `Cliente`, `ClienteFisico`, `ClienteEmpresa`, `Colaborador`, `Bodega`, `Celda`, `Menu` (menú principal) | `Paquete`, `RegistroBitacora`, `CentroDistribucion` (parte 2) | `Tarifas`, `SolicitudEnvio`, `Despacho`, `Reportes`, `CentroDistribucion` (parte 3) |
+| **Listas** | `ListaCentros`, `ListaClientes`, `ListaColaboradores`, `ListaBodegas` | `ListaPaquetes`, `ListaBitacora` | `ListaSolicitudes`, `ListaDespachos` |
 | **Submenús** | Centros, Clientes, Colaboradores, Bodegas | Paquetes | Solicitudes, Despachos, Reportes |
 | **Reportes** | Ocupación de bodegas | Bitácora de un paquete | Los otros 4 |
 | **Puntos aprox.** | ~28 + base | ~34 | ~38 |
 
-> ⏰ **Prioridad del Integrante 1:** `Lista`, `Nodo`, `Fecha`, `Validaciones` y `Constantes.h` tienen que estar listos **primero**, porque los otros dos los necesitan.
+> ⏰ **Prioridad del Integrante 1:** `Fecha`, `Validaciones`, `Constantes` y **`ListaClientes`** tienen que estar listos **primero**. `ListaClientes` sirve de **modelo**: los otros copian ese mismo patrón para hacer sus listas (ver [4.1](#41-clases-base-integrante-1)).
 
-### Calendario sugerido
-| Fechas      | Meta                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------ |
-| 9 – 15 oct  | Todos los `.h` escritos y acordados. Lista, Fecha y Validaciones funcionando.        |
-| 16 – 25 oct | Cada uno implementa su módulo.                                                       |
-| 26 – 31 oct | Reportes, datos de prueba, pruebas cruzadas, diagrama final y `.txt` de integrantes. |
-| 1 nov       | Entrega                                                                              |
+### 3.1 Dependencias entre integrantes
+
+Estos métodos los **usa** un integrante pero los **escribe** otro. Hay que acordar las firmas **antes** de programar.
+
+| Lo necesita | Para… | Método | Lo escribe |
+|---|---|---|---|
+| Int. 1 | `Sistema::existePaquete` | `CentroDistribucion::buscarPaquete(codigo)` | Int. 2 |
+| Int. 1 | `Sistema::existeSolicitud` / `existeDespacho` | `CentroDistribucion::buscarSolicitud(codigo)` / `buscarDespacho(codigo)` | Int. 3 |
+| Int. 1 | Eliminar cliente | `ListaPaquetes::tieneDeCliente(c)` | Int. 2 |
+| Int. 1 | Eliminar cliente | `ListaSolicitudes::tieneDeCliente(c)`, `ListaDespachos::tieneDeCliente(c)` | Int. 3 |
+| Int. 1 | Eliminar colaborador | `ListaPaquetes::colaboradorEnBitacoras(col)` (usa `Paquete::tieneRegistroDe(col)`) | Int. 2 |
+| Int. 1 | Eliminar colaborador | `ListaSolicitudes::tieneDeResponsable(col)`, `ListaDespachos::tieneDeResponsable(col)` | Int. 3 |
+| Int. 1 | Eliminar bodega | `ListaPaquetes::tieneEnBodega(b)` | Int. 2 |
+| Int. 2 | Almacenar / reubicar | `Bodega`: `asignar`, `liberar`, `estaLibre`, `posicionValida`, `primeraCeldaLibre`, `porcentajeDisponible`, `mostrarMatriz` | Int. 1 |
+| Int. 2 | Eliminar paquete | `ListaSolicitudes::tieneDePaquete(p)` | Int. 3 |
+| Int. 3 | Crear y aprobar solicitudes | `Paquete`: `getEstado`, `getPeso`, `getCategoria`, `getPropietario`, `getTieneDespacho`, `setTieneDespacho`, `quitarUbicacion`, `cambiarEstado` | Int. 2 |
+| Int. 3 | Reporte clientes por envíos | `CentroDistribucion::getClientes()` (recorrer `ListaClientes`) | Int. 1 |
+
+> Si alguien necesita un método que no está en esta tabla, se lo pide al dueño de la clase en el grupo.
+
+### Calendario
+
+| Fecha | Meta |
+| --- | --- |
+| Dom 25 – Lun 26 oct | Todos los `.h` escritos, acordados y subidos. Int. 1 sube `Fecha`, `Validaciones`, `Constantes` y `ListaClientes`. Int. 2 sube `Paquete.h` (lo necesita el Int. 3). |
+| Mar 27 – Jue 29 oct | Cada uno implementa su módulo, sus listas y su submenú. |
+| Vie 30 oct | Integración en `main`, `cargarDatosPrueba()` completo, primeras pruebas cruzadas. |
+| Sáb 31 oct | Reportes, pruebas de todos los flujos, diagrama final y `integrantes.txt`. |
+| Dom 1 nov | Revisión final y entrega **antes de las 11:59 p. m.** |
 
 ---
 
@@ -188,19 +223,131 @@ PENDIENTE ──► APROBADA   (crea el despacho)
 
 ### 4.1 Clases base (Integrante 1)
 
-#### `Nodo<T>` y `Lista<T>`
-- **Qué es:** la lista enlazada que usamos para **todas** las colecciones.
-- **Qué guarda:** `Nodo` guarda un `dato` y un puntero `siguiente`. `Lista` guarda el puntero `primero` y la `cantidad`.
-- **Qué debe hacer:** insertar al final, eliminar un dato, recorrer (con `getPrimero()` y `getSiguiente()`), contar y decir si está vacía.
+#### Listas enlazadas (una por tipo)
+
+- **Qué es:** cada colección tiene su propia lista simplemente enlazada, como `ListaMateriales` (semana 12). No usamos `template`.
+- **Listas del proyecto:**
+
+| Lista | Guarda | Busca por | Dueño |
+|---|---|---|---|
+| `ListaCentros` | `CentroDistribucion*` | código | Int. 1 |
+| `ListaClientes` | `Cliente*` (lista **polimórfica**: físicos y empresas) | identificación | Int. 1 |
+| `ListaColaboradores` | `Colaborador*` | identificación | Int. 1 |
+| `ListaBodegas` | `Bodega*` | código | Int. 1 |
+| `ListaPaquetes` | `Paquete*` | código | Int. 2 |
+| `ListaBitacora` | `RegistroBitacora*` | — (no se busca ni se elimina) | Int. 2 |
+| `ListaSolicitudes` | `SolicitudEnvio*` | código | Int. 3 |
+| `ListaDespachos` | `Despacho*` | código | Int. 3 |
+
+- **Todas tienen los mismos métodos:** `insertarFinal(x)`, `buscar(codigo)`, `eliminar(x)`, `getPrimero()`, `getCantidad()` y `estaVacia()`. `ListaBitacora` no tiene `buscar` ni `eliminar`, porque sus registros nunca se eliminan.
+- **El nodo va en el mismo archivo que su lista** (`NodoCliente` dentro de `ListaClientes.h/.cpp`), porque solo esa lista lo usa.
 - **Cuidado con:**
-  - Con plantillas (`template`), **todo el código va en el `.h`**. Una plantilla no se puede separar en `.cpp` sin complicarse.
-  - El destructor de `Lista` **solo borra los nodos**, no los objetos a los que apuntan. Los objetos los borra su dueño (ver [6.6](#66-memoria-dinámica-quién-borra-qué)).
-  - Si el profesor no enseñó plantillas, hagan una lista por tipo (`ListaClientes`, `ListaBodegas`, …) con **los mismos nombres de métodos**.
+  - El destructor de la lista **solo borra los nodos**, no los objetos a los que apuntan (agregación, como en la semana 10). Los objetos los borra su dueño (ver [6.6](#66-memoria-dinámica-quién-borra-qué)).
+  - `eliminar(x)` **solo quita el nodo**. El `delete` del objeto lo hace quien llamó.
   - Insertar **al final** es importante, porque el reporte de clientes respeta "el orden en que aparecen en la lista" y la bitácora va "del más antiguo al más reciente".
+  - Las búsquedas viven **dentro de la lista** (`clientes.buscar(id)`) y `CentroDistribucion` solo delega. Así respetamos la Ley de Demeter (semana 13).
+
+**Modelo que todos copian** (`ListaClientes`):
+
+```cpp
+// ListaClientes.h
+#ifndef LISTACLIENTES_H
+#define LISTACLIENTES_H
+
+#include <string>
+
+class Cliente;   // solo usamos punteros
+
+// Nodo de la lista: guarda un Cliente* y el siguiente nodo.
+class NodoCliente {
+private:
+    Cliente* dato;
+    NodoCliente* siguiente;
+
+public:
+    NodoCliente(Cliente* dato);
+    Cliente* getDato();
+    NodoCliente* getSiguiente();
+    void setSiguiente(NodoCliente* siguiente);
+};
+
+// Lista simplemente enlazada de clientes (agregacion: no borra los clientes).
+class ListaClientes {
+private:
+    NodoCliente* primero;
+    int cantidad;
+
+public:
+    ListaClientes();
+    ~ListaClientes();
+
+    void insertarFinal(Cliente* cliente);
+    // Devuelve el cliente con esa identificacion o nullptr si no existe.
+    Cliente* buscar(std::string identificacion);
+    // Quita el nodo del cliente. NO hace delete del cliente.
+    bool eliminar(Cliente* cliente);
+
+    NodoCliente* getPrimero();
+    int getCantidad();
+    bool estaVacia();
+};
+
+#endif
+```
+
+```cpp
+// ListaClientes.cpp (partes principales)
+
+// Libera solo los nodos. Los clientes los borra CentroDistribucion.
+ListaClientes::~ListaClientes() {
+    NodoCliente* actual = primero;
+    while (actual != nullptr) {
+        NodoCliente* siguiente = actual->getSiguiente();
+        delete actual;
+        actual = siguiente;
+    }
+    primero = nullptr;
+}
+
+// Inserta al final para respetar el orden de llegada.
+void ListaClientes::insertarFinal(Cliente* cliente) {
+    NodoCliente* nuevo = new NodoCliente(cliente);
+    if (primero == nullptr) {
+        primero = nuevo;
+    } else {
+        NodoCliente* actual = primero;
+        while (actual->getSiguiente() != nullptr) {
+            actual = actual->getSiguiente();
+        }
+        actual->setSiguiente(nuevo);
+    }
+    cantidad++;
+}
+
+bool ListaClientes::eliminar(Cliente* cliente) {
+    NodoCliente* anterior = nullptr;
+    NodoCliente* actual = primero;
+    while (actual != nullptr && actual->getDato() != cliente) {
+        anterior = actual;
+        actual = actual->getSiguiente();
+    }
+    if (actual == nullptr) {
+        return false;                         // no estaba en la lista
+    }
+    if (anterior == nullptr) {
+        primero = actual->getSiguiente();     // era el primero
+    } else {
+        anterior->setSiguiente(actual->getSiguiente());
+    }
+    delete actual;                            // borra el nodo, no el cliente
+    cantidad--;
+    return true;
+}
+```
 
 Ejemplo de recorrido (todos lo hacemos igual):
 ```cpp
-Nodo<Cliente*>* actual = clientes.getPrimero();
+NodoCliente* actual = clientes.getPrimero();
 while (actual != nullptr) {
     Cliente* c = actual->getDato();
     // ... usar c ...
@@ -215,40 +362,111 @@ while (actual != nullptr) {
 - **Cuidado con:** validar que el día esté entre 1 y 31, el mes entre 1 y 12, la hora entre 0 y 23 y los minutos entre 0 y 59. Eso lo hace `Validaciones::leerFecha`.
 
 #### `Validaciones`
-- **Qué es:** funciones `static` para pedirle datos al usuario **sin que el programa se caiga**.
+- **Qué es:** funciones `static` para pedirle datos al usuario **sin que el programa se caiga** (igual que los métodos `static` de `MatrizDinamica`, semana 14).
 - **Qué debe hacer:**
   - `leerEntero(msg, min, max)`: repite la pregunta hasta que el usuario escriba un entero dentro del rango.
-  - `leerDouble(msg, min)`: repite hasta recibir un número válido.
+  - `leerDouble(msg, min)`: repite hasta recibir un número mayor que `min`.
   - `leerTexto(msg)`: lee con `getline` y no acepta texto vacío.
   - `leerFecha(msg)`: pide día, mes, año, hora y minuto válidos.
-- **Cuidado con:** mezclar `cin >>` con `getline` deja un salto de línea pendiente. Por eso **todas** las lecturas se hacen con `getline` y después se convierten. **Nadie usa `cin >>` directamente en los menús.**
+- **Cuidado con:** mezclar `cin >>` con `getline` deja un salto de línea pendiente. Por eso **todas** las lecturas se hacen con `getline` y después se convierten con `stringstream`. **Nadie usa `cin >>` directamente en los menús.**
 
-#### `Constantes.h`
-- **Qué es:** el archivo con los `enum` de categorías y estados, más funciones para pasarlos a texto.
-- **Qué contiene:** `Categoria`, `EstadoPaquete`, `EstadoSolicitud` y `EstadoDespacho`, más `textoCategoria(int)`, `textoEstadoPaquete(int)`, `textoEstadoSolicitud(int)` y `textoEstadoDespacho(int)`.
-- **Quién:** el Integrante 1 crea el archivo con `Categoria`. Cada integrante agrega **sus** enums y funciones de texto.
+```cpp
+// Pide un entero hasta que el usuario escriba uno valido dentro del rango.
+int Validaciones::leerEntero(string mensaje, int minimo, int maximo) {
+    string linea;
+    while (true) {
+        cout << mensaje;
+        getline(cin, linea);
+        stringstream ss(linea);
+        int numero;
+        char sobrante;
+        // Es valido si se leyo un entero y no quedo nada mas escrito
+        if (ss >> numero && !(ss >> sobrante) && numero >= minimo && numero <= maximo) {
+            return numero;
+        }
+        cout << "Error: digite un numero entero entre " << minimo
+             << " y " << maximo << "." << endl;
+    }
+}
+```
+
+#### `Constantes.h` / `Constantes.cpp`
+- **Qué es:** las constantes de categorías y estados, más funciones para pasarlas a texto. Son `const int` normales, **no `enum`**.
+- **Qué contiene:**
+
+```cpp
+// Constantes.h
+#ifndef CONSTANTES_H
+#define CONSTANTES_H
+
+#include <string>
+
+// Categorias de paquete y tipos de bodega (mismos numeros)
+const int GENERAL = 1;
+const int FRAGIL = 2;
+const int TECNOLOGIA = 3;
+const int DOCUMENTOS = 4;
+
+// Estados del paquete (0 a 4, se usan como indices de la tabla de transiciones)
+const int RECIBIDO = 0;
+const int ALMACENADO = 1;
+const int EN_TRANSITO = 2;
+const int ENTREGADO = 3;
+const int INCIDENCIA = 4;
+
+// Estados de la solicitud
+const int PENDIENTE = 0;
+const int APROBADA = 1;
+const int RECHAZADA = 2;
+const int ANULADA = 3;
+
+// Estados del despacho
+const int EN_PROCESO = 0;
+const int FINALIZADO = 1;
+
+std::string textoCategoria(int categoria);
+std::string textoEstadoPaquete(int estado);
+std::string textoEstadoSolicitud(int estado);
+std::string textoEstadoDespacho(int estado);
+
+#endif
+```
+
+- **Cuidado con:** las funciones `texto…` se **declaran** en el `.h` y se **implementan** en `Constantes.cpp`. Si se escriben completas en el `.h`, el programa no enlaza ("multiple definition") porque varios `.cpp` incluyen ese archivo.
+- **Quién:** el Integrante 1 crea los dos archivos completos para que nadie tenga que tocarlos.
 
 ### 4.2 Núcleo (Integrante 1)
 
 #### `Sistema`
 - **Qué es:** la "empresa" TicoPack. Hay **un solo** objeto de esta clase y lo crea `main`.
-- **Qué guarda:** la lista de centros.
+- **Qué guarda:** una `ListaCentros`.
 - **Qué debe hacer:**
   - Agregar, buscar y eliminar centros. Para eliminar, primero pregunta `centro->puedeEliminarse()`.
-  - `existePaquete`, `existeSolicitud` y `existeDespacho`: recorren **todos** los centros para verificar que un código global no esté repetido.
+  - `existePaquete`, `existeSolicitud` y `existeDespacho`: recorren **todos** los centros para verificar que un código global no esté repetido. Usan `buscarPaquete`, `buscarSolicitud` y `buscarDespacho` de cada centro.
   - `cargarDatosPrueba()`: llena el sistema con datos de ejemplo. Cada integrante agrega su parte.
 - **Cuidado con:** el destructor de `Sistema` borra los centros.
 
 #### `CentroDistribucion`
 - **Qué es:** un centro de distribución. Es la clase **más importante**, porque es dueña de todas las listas y ahí vive la lógica de las operaciones.
-- **Qué guarda:** código, nombre, provincia, dirección, teléfono y **6 listas**: clientes, colaboradores, bodegas, paquetes, solicitudes y despachos.
+- **Qué guarda:** código, nombre, provincia, dirección, teléfono y **6 listas**: `ListaClientes`, `ListaColaboradores`, `ListaBodegas`, `ListaPaquetes`, `ListaSolicitudes` y `ListaDespachos`.
 - **Qué debe hacer:** está dividida en 3 partes, una por integrante:
   - **Parte 1 (Integrante 1):** agregar, buscar y eliminar clientes, colaboradores y bodegas, más `puedeEliminarse()`.
   - **Parte 2 (Integrante 2):** paquetes, almacenar, recomendar, reubicar e incidencias.
   - **Parte 3 (Integrante 3):** crear, aprobar, rechazar y anular solicitudes, y finalizar despachos.
 - **Cuidado con:**
   - Como 3 personas escriben en el mismo `.cpp`, **cada quien escribe solo debajo de su comentario de sección** (ver [6.10](#610-trabajo-en-equipo-y-git)).
-  - El destructor borra los objetos de **todas** sus listas, en este orden: despachos, solicitudes, paquetes, bodegas, colaboradores y clientes.
+  - Las búsquedas solo delegan en la lista: `return clientes.buscar(id);`.
+  - El destructor borra los objetos de **todas** sus listas, en este orden: despachos, solicitudes, paquetes, bodegas, colaboradores y clientes. Después, cada lista borra sus nodos sola.
+
+```cpp
+// Ejemplo: borrar los clientes en el destructor del centro
+NodoCliente* actual = clientes.getPrimero();
+while (actual != nullptr) {
+    delete actual->getDato();   // borra el cliente (destructor virtual)
+    actual = actual->getSiguiente();
+}
+// los nodos los borra el destructor de ListaClientes
+```
 
 ### 4.3 Personas (Integrante 1)
 
@@ -258,18 +476,18 @@ while (actual != nullptr) {
 - **Qué debe hacer:**
   - `getTipo()`: método **virtual puro** que devuelve `"Fisico"` o `"Empresa"`.
   - `aplicarDescuento(costoBase)`: método **virtual**. Por defecto devuelve el mismo costo, sin descuento.
-  - `mostrar()`: imprime los datos comunes.
-- **Cuidado con:** el **destructor virtual** (`virtual ~Cliente() {}`) es obligatorio. Sin él, borrar un `Cliente*` que en realidad es una `ClienteEmpresa` no libera bien la memoria.
+  - `mostrar()`: método **virtual** que imprime los datos comunes.
+- **Cuidado con:** el **destructor virtual** (`virtual ~Cliente() {}`) es obligatorio. Sin él, borrar un `Cliente*` que en realidad es una `ClienteEmpresa` no libera bien la memoria (semana 9 y 15).
 
 #### `ClienteFisico`
 - **Qué es:** un cliente persona física. No agrega atributos.
-- **Qué debe hacer:** implementar `getTipo()` y `mostrar()`.
+- **Qué debe hacer:** implementar `getTipo()` y `mostrar()` con `override`.
 
 #### `ClienteEmpresa`
 - **Qué es:** un cliente empresa.
 - **Qué guarda (además):** actividad económica y porcentaje de descuento (0 a 100).
 - **Qué debe hacer:** **sobrescribir `aplicarDescuento`** para que devuelva `costoBase - costoBase * porcentajeDescuento / 100`.
-- **Cuidado con:** esto es **polimorfismo**. Así, `SolicitudEnvio` no necesita preguntar con un `if` si el cliente es empresa, solo llama a `cliente->aplicarDescuento(base)`. Es algo que el profesor puede preguntar en la defensa.
+- **Cuidado con:** esto es **polimorfismo**. Así, `SolicitudEnvio` no necesita preguntar con un `if` ni con `dynamic_cast` si el cliente es empresa, solo llama a `cliente->aplicarDescuento(base)`. Es algo que el profesor puede preguntar en la defensa (semana 15: "cambiar un if-else por polimorfismo").
 
 #### `Colaborador`
 - **Qué es:** un empleado del centro.
@@ -289,13 +507,15 @@ while (actual != nullptr) {
 - **Qué guarda:** código, nombre, tipo (1 a 4), filas, columnas y `Celda** matriz`.
 - **Qué debe hacer:**
   - **Constructor:** reservar la matriz con `new` (ver el código abajo).
-  - **Destructor:** liberar la matriz con `delete[]`.
+  - **Destructor:** liberar la matriz con `delete[]`, primero las filas y luego el arreglo de punteros.
   - `posicionValida(f, c)`: `0 <= f < filas` y `0 <= c < columnas`.
   - `estaLibre`, `asignar`, `liberar` y `getPaquete` sobre una posición.
   - `totalCeldas()`, `celdasOcupadas()`, `porcentajeOcupacion()` y `porcentajeDisponible()`.
   - `primeraCeldaLibre(f, c)`: recorre fila por fila y devuelve la primera celda libre (por referencia). Devuelve `false` si está llena.
   - `mostrarMatriz()`: dibuja la bodega en consola.
-- **Cuidado con:** `asignar` y `liberar` **siempre** validan primero la posición.
+- **Cuidado con:**
+  - `asignar` y `liberar` **siempre** validan primero la posición.
+  - **Regla de los Tres (semana 14):** como `Bodega` maneja memoria dinámica, una copia por defecto haría que dos bodegas compartan la misma matriz y se borre dos veces. Las bodegas **siempre se manejan por puntero (`Bodega*`) y nunca se copian**. Si el profe pregunta, eso es lo que hay que explicar.
 
 ```cpp
 // Constructor
@@ -307,23 +527,44 @@ for (int i = 0; i < filas; i++)
 for (int i = 0; i < filas; i++)
     delete[] matriz[i];
 delete[] matriz;
+matriz = nullptr;
 ```
 
 ### 4.5 Paquetes (Integrante 2)
 
 #### `Paquete`
 - **Qué es:** un paquete que la empresa recibe.
-- **Qué guarda:** código, descripción, peso, categoría, estado, código del centro, `propietario` (Cliente\*), `bodega` (Bodega\*, `nullptr` si no está guardado), `fila`, `columna` (−1 si no tiene), la `bitacora` (lista de `RegistroBitacora*`) y `tieneDespacho`.
+- **Qué guarda:** código, descripción, peso, categoría, estado, código del centro, `propietario` (Cliente\*), `bodega` (Bodega\*, `nullptr` si no está guardado), `fila`, `columna` (−1 si no tiene), la `bitacora` (`ListaBitacora`) y `tieneDespacho`.
 - **Qué debe hacer:**
-  - `puedeCambiarA(nuevo)`: consulta la matriz `static const bool TRANSICIONES[5][5]`.
+  - `puedeCambiarA(nuevo)`: revisa la tabla de transiciones con una **matriz local** (ver el código abajo).
   - `cambiarEstado(nuevo, fecha, responsable)`: si la transición es válida, crea un `RegistroBitacora`, lo agrega a la bitácora y cambia el estado. **No mueve celdas**, eso lo hacen las operaciones.
   - `asignarUbicacion(b, f, c)`: guarda dónde está el paquete.
   - `quitarUbicacion()`: **libera la celda en la bodega** (`bodega->liberar(fila, columna)`) y pone `bodega = nullptr`, `fila = columna = -1`.
   - `tieneUbicacion()`: devuelve `bodega != nullptr`.
+  - `tieneRegistroDe(col)`: dice si el colaborador aparece en la bitácora (lo usa el Int. 1 para eliminar colaboradores).
   - `mostrar()` y `mostrarBitacora()`.
 - **Cuidado con:**
-  - El destructor borra los registros de su bitácora.
+  - El destructor borra los registros de su bitácora (el `Paquete` es dueño de sus registros).
   - Un paquete nuevo empieza en `RECIBIDO`, sin bodega y **sin registros en la bitácora**, porque todavía no hubo un cambio de estado.
+
+```cpp
+// Revisa la tabla de transiciones del enunciado.
+bool Paquete::puedeCambiarA(int nuevo) {
+    if (nuevo < RECIBIDO || nuevo > INCIDENCIA) {
+        return false;
+    }
+    // Fila = estado actual, columna = estado nuevo
+    const bool tabla[5][5] = {
+        //            REC    ALM    TRA    ENT    INC
+        /* REC */  { false, true,  false, false, true  },
+        /* ALM */  { false, false, true,  false, true  },
+        /* TRA */  { false, false, false, true,  true  },
+        /* ENT */  { false, false, false, false, false },
+        /* INC */  { false, true,  true,  false, false }
+    };
+    return tabla[estado][nuevo];
+}
+```
 
 #### `RegistroBitacora`
 - **Qué es:** una línea del historial de un paquete.
@@ -331,13 +572,41 @@ delete[] matriz;
 - **Qué debe hacer:** `mostrar()`.
 - **Cuidado con:** **nunca** se modifica ni se elimina. Solo tiene getters, sin setters.
 
+#### `ListaPaquetes` y `ListaBitacora`
+- Siguen el modelo de `ListaClientes` ([4.1](#41-clases-base-integrante-1)).
+- `ListaPaquetes` agrega los métodos que necesita el Int. 1: `tieneDeCliente(c)`, `tieneEnBodega(b)` y `colaboradorEnBitacoras(col)`.
+- `ListaBitacora` solo tiene `insertarFinal`, `getPrimero`, `getCantidad` y `tieneRegistroDe(col)`, que usa `Paquete::tieneRegistroDe`.
+
 ### 4.6 Solicitudes y despachos (Integrante 3)
 
 #### `Tarifas`
-- **Qué es:** una clase que solo tiene datos compartidos (`static`).
-- **Qué guarda:** `static const double GENERAL = 1500`, `FRAGIL = 2000`, `TECNOLOGIA = 2500` y `DOCUMENTOS = 1000`.
+- **Qué es:** una clase que solo tiene datos compartidos (`static`), como pide el enunciado.
+- **Qué guarda:** las cuatro tarifas como `static const double`.
 - **Qué debe hacer:** `obtener(categoria)` devuelve la tarifa que corresponde.
-- **Cuidado con:** el enunciado exige que **nadie escriba 1500 u otra tarifa directamente** en otro lugar del código.
+- **Cuidado con:**
+  - El enunciado exige que **nadie escriba 1500 u otra tarifa directamente** en otro lugar del código.
+  - En C++ un `static const double` **no se puede inicializar dentro de la clase**: se declara en el `.h` y se le da valor en el `.cpp`. Si se escribe `static const double GENERAL = 1500;` dentro de la clase, **no compila**.
+  - Se llaman `TARIFA_…` para no confundirlas con las constantes de categoría.
+
+```cpp
+// Tarifas.h
+class Tarifas {
+public:
+    static const double TARIFA_GENERAL;
+    static const double TARIFA_FRAGIL;
+    static const double TARIFA_TECNOLOGIA;
+    static const double TARIFA_DOCUMENTOS;
+
+    // Devuelve la tarifa por kilogramo de una categoria.
+    static double obtener(int categoria);
+};
+
+// Tarifas.cpp
+const double Tarifas::TARIFA_GENERAL = 1500;
+const double Tarifas::TARIFA_FRAGIL = 2000;
+const double Tarifas::TARIFA_TECNOLOGIA = 2500;
+const double Tarifas::TARIFA_DOCUMENTOS = 1000;
+```
 
 #### `SolicitudEnvio`
 - **Qué es:** el pedido para enviar un paquete.
@@ -351,7 +620,11 @@ delete[] matriz;
 - **Qué es:** el envío real del paquete. Se crea **solo** al aprobar una solicitud.
 - **Qué guarda:** código, solicitud, paquete, cliente, responsable, centro de origen, destino, fecha con hora y estado.
 - **Qué debe hacer:** `finalizar()`, que cambia el estado a `FINALIZADO`, y `mostrar()`.
-- **Cuidado con:** el cliente, el paquete, el responsable y el destino se copian de la solicitud.
+- **Cuidado con:** el cliente, el paquete, el responsable y el destino se copian de la solicitud **al crearlo**, para no tener que hacer cadenas como `d->getSolicitud()->getPaquete()->...` (Ley de Demeter).
+
+#### `ListaSolicitudes` y `ListaDespachos`
+- Siguen el modelo de `ListaClientes` ([4.1](#41-clases-base-integrante-1)).
+- Agregan los métodos que necesitan los demás: `tieneDeCliente(c)`, `tieneDeResponsable(col)` y, en `ListaSolicitudes`, `tieneDePaquete(p)` y `tienePendiente(p)`.
 
 #### `Reportes`
 - **Qué es:** funciones `static` que imprimen los 6 reportes.
@@ -451,9 +724,10 @@ Estos flujos conectan el trabajo de varios integrantes. **Respétenlos tal cual*
 | Elemento | Estilo | Ejemplo |
 |---|---|---|
 | Clases | `PascalCase` | `CentroDistribucion`, `SolicitudEnvio` |
+| Listas y nodos | `Lista` / `Nodo` + tipo | `ListaPaquetes`, `NodoPaquete` |
 | Métodos y funciones | `camelCase`, empiezan con verbo | `buscarCliente()`, `calcularCosto()` |
 | Atributos y variables | `camelCase` | `porcentajeDescuento`, `codigoCentro` |
-| Constantes y valores de enum | `MAYUSCULAS_CON_GUION` | `EN_TRANSITO`, `GENERAL` |
+| Constantes | `MAYUSCULAS_CON_GUION` | `EN_TRANSITO`, `GENERAL`, `TARIFA_FRAGIL` |
 | Getters / setters | `getX()` / `setX()` | `getCodigo()`, `setEstado()` |
 | Booleanos | `es…`, `esta…`, `tiene…`, `puede…` | `estaLibre()`, `tieneDespacho`, `puedeEliminarse()` |
 | Archivos | Igual que la clase | `ClienteEmpresa.h`, `ClienteEmpresa.cpp` |
@@ -466,8 +740,7 @@ Estos flujos conectan el trabajo de varios integrantes. **Respétenlos tal cual*
 ```
 TicoPack/
 ├── main.cpp
-├── Constantes.h
-├── Lista.h            (Lista<T> y Nodo<T>, todo en el .h)
+├── Constantes.h / .cpp
 ├── Fecha.h / .cpp
 ├── Validaciones.h / .cpp
 ├── Sistema.h / .cpp
@@ -485,13 +758,21 @@ TicoPack/
 ├── Despacho.h / .cpp
 ├── Reportes.h / .cpp
 ├── Menu.h / .cpp
+├── ListaCentros.h / .cpp        (incluye NodoCentro)
+├── ListaClientes.h / .cpp       (incluye NodoCliente)
+├── ListaColaboradores.h / .cpp  (incluye NodoColaborador)
+├── ListaBodegas.h / .cpp        (incluye NodoBodega)
+├── ListaPaquetes.h / .cpp       (incluye NodoPaquete)
+├── ListaBitacora.h / .cpp       (incluye NodoBitacora)
+├── ListaSolicitudes.h / .cpp    (incluye NodoSolicitud)
+├── ListaDespachos.h / .cpp      (incluye NodoDespacho)
 └── docs/
     ├── diagramas (.puml y .png)
     ├── GUIA_EQUIPO.md
     └── integrantes.txt
 ```
 
-- **Una clase = un `.h` + un `.cpp`.**
+- **Una clase = un `.h` + un `.cpp`.** La única excepción son los nodos, que van junto a su lista.
 - El `.h` tiene la declaración (atributos y firmas). El `.cpp` tiene el código.
 
 ### 6.3 Plantilla de un `.h`
@@ -501,19 +782,19 @@ TicoPack/
 #define PAQUETE_H
 
 #include <string>
-#include "Lista.h"
 #include "Fecha.h"
 #include "Constantes.h"
+#include "ListaBitacora.h"
 
 class Cliente;      // declaraciones adelantadas: solo usamos punteros
 class Bodega;
 class Colaborador;
-class RegistroBitacora;
 
 class Paquete {
 private:
     std::string codigo;
     // ...
+    ListaBitacora bitacora;
 
 public:
     Paquete(std::string codigo, std::string descripcion, double peso,
@@ -535,6 +816,7 @@ public:
 - Siempre llevan **include guards** (`#ifndef NOMBRE_H` / `#define` / `#endif`).
 - **No ponemos `using namespace std;` en los `.h`**: ahí escribimos `std::string`. En los `.cpp` sí se puede usar.
 - Si solo se usa un **puntero** a otra clase, se pone `class OtraClase;` en el `.h` y el `#include` en el `.cpp`. Así se evitan los includes circulares (`Celda` ↔ `Paquete`, `Paquete` ↔ `Bodega`).
+- Si se guarda un **objeto completo** (como `ListaBitacora bitacora;` dentro de `Paquete`), sí hay que hacer el `#include` en el `.h`.
 - Los atributos son **`private`**. En `Cliente` son `protected` por la herencia.
 - Va una línea de comentario arriba de cada método que no sea obvio.
 
@@ -557,14 +839,16 @@ public:
 Paquete* p = centro->buscarPaquete(codigo);
 if (p == nullptr) {
     cout << "Error: no existe un paquete con ese codigo." << endl;
-} else if (centro->almacenarPaquete(p, b, f, c, col)) {
+} else if (centro->almacenarPaquete(p, b, fila, columna, fecha, col)) {
     cout << "Paquete almacenado correctamente." << endl;
 }
 ```
 
+**Ley de Demeter (semana 13):** cada objeto le habla solo a sus "amigos directos". Evitamos cadenas largas como `despacho->getSolicitud()->getPaquete()->getPropietario()->getNombre()`. Si hace falta un dato lejano, se agrega un método que lo dé directo o se guarda una copia del puntero al crear el objeto.
+
 ### 6.5 Estados y categorías
 
-- Siempre se usan los **enum de `Constantes.h`** y **nunca números sueltos**: `p->getEstado() == ALMACENADO`, no `== 1`.
+- Siempre se usan las **constantes de `Constantes.h`** y **nunca números sueltos**: `p->getEstado() == ALMACENADO`, no `== 1`.
 - En los atributos, los estados y categorías se guardan como `int`.
 - Para mostrarlos se usa `textoEstadoPaquete(estado)`, etc.
 - Al pedirle una categoría o tipo al usuario, se muestra la lista numerada:
@@ -582,12 +866,13 @@ if (p == nullptr) {
 | `CentroDistribucion` | Despachos, solicitudes, paquetes, bodegas, colaboradores y clientes (en ese orden) |
 | `Bodega` | Su matriz (`delete[]`) |
 | `Paquete` | Sus `RegistroBitacora` |
-| `Lista<T>` | Solo sus **nodos** |
+| Cada `ListaX` | Solo sus **nodos** |
 
 - `Celda`, `SolicitudEnvio`, `Despacho` y `RegistroBitacora` **solo apuntan**: nunca hacen `delete` de lo que apuntan.
-- Al eliminar un elemento por el menú (por ejemplo, un cliente): primero se quita de la lista y después se hace `delete` del objeto.
+- Al eliminar un elemento por el menú (por ejemplo, un cliente): primero se quita de la lista con `eliminar(x)` y después se hace `delete` del objeto.
 - Todo `new X[n]` termina con `delete[]`, y todo `new X` con `delete`.
 - Un puntero que ya no apunta a nada debe quedar en **`nullptr`**.
+- **Regla de los Tres:** las listas, las bodegas, los paquetes y los centros **nunca se copian**; siempre se pasan por puntero. Así no hace falta escribir constructor copia ni `operator=`, y no hay riesgo de borrar la misma memoria dos veces.
 
 ### 6.7 Entrada de datos
 
@@ -671,6 +956,8 @@ Usamos los mismos formatos de código en todo el proyecto:
 - Algunas solicitudes en distintos estados.
 - Algunos despachos, unos finalizados y otros en proceso.
 
+> Los datos de prueba deben crearse **usando las mismas operaciones del sistema** (`almacenarPaquete`, `aprobarSolicitud`, …), no cambiando estados a mano. Así la bitácora y las celdas quedan consistentes.
+
 Cada integrante escribe su bloque dentro de `cargarDatosPrueba()` y lo marca con un comentario:
 ```cpp
 // ===== Datos de prueba - Integrante 2 (paquetes) =====
@@ -681,7 +968,7 @@ Cada integrante escribe su bloque dentro de `cargarDatosPrueba()` y lo marca con
 - Usen **un repositorio en GitHub** (puede ser privado).
 - Cada integrante trabaja en **su rama** (`integrante1`, `integrante2`, `integrante3`) y une sus cambios a `main` **solo si compila**.
 - Mensajes de commit cortos y en español, con verbo: `Agrega reubicacion de paquetes`, `Corrige validacion de peso`.
-- **No modifiquen archivos de otro integrante sin avisarle.** Si necesitan un método nuevo en una clase ajena, se lo piden al dueño o lo hablan antes.
+- **No modifiquen archivos de otro integrante sin avisarle.** Si necesitan un método nuevo en una clase ajena, se lo piden al dueño o lo hablan antes (ver [3.1](#31-dependencias-entre-integrantes)).
 - `CentroDistribucion.cpp` lo comparten los tres, separado así:
   ```cpp
   // ============================================
@@ -710,19 +997,23 @@ Antes de unir su parte a `main`, revisen:
 
 - [ ] Compila sin errores.
 - [ ] Ningún `vector`, `list`, `map`, `sort` ni nada parecido de la STL.
+- [ ] Ningún `template` ni `enum`.
+- [ ] Mis listas siguen el modelo de `ListaClientes` (mismos nombres de métodos).
 - [ ] Cada `new` tiene su `delete` (o `delete[]`) en el lugar correcto.
 - [ ] Todas las entradas usan `Validaciones`.
 - [ ] Probé meter letras donde van números, textos vacíos y números negativos.
 - [ ] Probé códigos repetidos y referencias que no existen.
 - [ ] Los estados se cambian **solo** por las operaciones correctas.
 - [ ] Cada cambio de estado de paquete quedó en la bitácora.
+- [ ] No hay cadenas largas de `->get…()->get…()` (Ley de Demeter).
 - [ ] Los nombres siguen las convenciones de la sección 6.1.
 - [ ] Agregué mis datos de prueba en `cargarDatosPrueba()`.
+- [ ] Hice los métodos que otros me pidieron en la tabla [3.1](#31-dependencias-entre-integrantes).
 - [ ] Le expliqué a los otros dos lo que hice (por la defensa oral).
 
 ### Checklist final de entrega
 - [ ] El código fuente completo compila desde cero.
-- [ ] El diagrama de clases está actualizado (`5_completo.png`) y coincide con el código.
+- [ ] El diagrama de clases (`diagrama_clases.puml` y su PNG) coincide con el código final.
 - [ ] Está el `integrantes.txt` con el nombre completo y la cédula de los 3.
 - [ ] Probamos los **6 reportes**.
 - [ ] Probamos los flujos completos: registrar → almacenar → reubicar → solicitar → aprobar → incidencia → resolver → finalizar.
