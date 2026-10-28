@@ -6,10 +6,18 @@
 >
 > Es como el README del proyecto con indicaciones generales xd
 
+> **Versión 3 (27 oct):** se actualizó con lo que ya programó el Integrante 1.
+> - **Ya no existe `Constantes.h`.** Los estados son **textos** (`"Recibido"`, `"Pendiente"`, …), igual que los estados del Proyecto 1, y las categorías / tipos de bodega son un `int` del 1 al 4 que cada clase pasa a texto con su propio método (`Bodega::getNombreTipo()`). Ver [6.5](#65-estados-y-categorías).
+> - Las funciones `agregar…` **borran el objeto si no lo pueden guardar** (como `registrarCancha` del Proyecto 1). Ver [6.4](#64-separación-menú--lógica).
+> - `Validaciones` tiene funciones nuevas (`leerDoubleRango`, `leerTelefono`, `leerCorreo`, `leerFechaSinHora`, `confirmar`) y `leerFecha` ya no acepta fechas como 31/02.
+> - La matriz se dibuja con tabulaciones (`\t`), sin `setw`. Ver [6.8](#68-formatos-de-salida).
+> - Los comentarios del código son cortos y no mencionan el material ni el Proyecto 1. Ver [6.11](#611-comentarios).
+> - Lo que falta de cada integrante quedó marcado en el código con `// TODO Integrante 2` y `// TODO Integrante 3`.
+
 > **Versión 2 (25 oct):** se ajustó todo al nivel de lo visto en clase (semanas 9 a 15).
 > Cambios principales:
 > - **Sin plantillas (`template`)**: cada colección tiene su propia lista (`ListaClientes`, `ListaPaquetes`, …), como en los ejemplos del curso.
-> - **Sin `enum`**: los estados y categorías son constantes `const int` en `Constantes.h`.
+> - **Sin `enum`**: los estados y categorías eran constantes `const int` en `Constantes.h` (se quitó en la versión 3).
 > - `Tarifas` corregida para que compile (los `static const double` se definen en el `.cpp`).
 > - `Paquete::puedeCambiarA` usa una tabla local en vez de un atributo `static`.
 > - Nueva sección de **dependencias entre integrantes** ([3.1](#31-dependencias-entre-integrantes)) y calendario actualizado.
@@ -88,12 +96,12 @@
 
 ### 2.2 Categorías, tipos de bodega y tarifas
 
-| Código | Constante | Categoría / tipo de bodega | Tarifa por kg |
-|---|---|---|---|
-| 1 | `GENERAL` | General | ¢1 500 |
-| 2 | `FRAGIL` | Frágil | ¢2 000 |
-| 3 | `TECNOLOGIA` | Tecnología | ¢2 500 |
-| 4 | `DOCUMENTOS` | Documentos | ¢1 000 |
+| Código (`int`) | Categoría / tipo de bodega | Tarifa por kg |
+|---|---|---|
+| 1 | General | ¢1 500 |
+| 2 | Frágil | ¢2 000 |
+| 3 | Tecnología | ¢2 500 |
+| 4 | Documentos | ¢1 000 |
 
 - Usamos **los mismos números** para la categoría del paquete y el tipo de bodega. Así, la compatibilidad es simplemente `bodega->getTipo() == paquete->getCategoria()`.
 - **Costo:** `costoBase = peso × tarifa`. Si el cliente es empresa: `costoFinal = costoBase − costoBase × descuento / 100`.
@@ -102,13 +110,13 @@
 
 Camino normal:
 ```
-RECIBIDO ──(asignar celda)──► ALMACENADO ──(aprobar solicitud)──► EN_TRANSITO ──(finalizar despacho)──► ENTREGADO
+Recibido ──(asignar celda)──► Almacenado ──(aprobar solicitud)──► En transito ──(finalizar despacho)──► Entregado
 ```
 Incidencias (camino temporal):
 ```
-RECIBIDO     ──► INCIDENCIA ──(almacenar normal)──► ALMACENADO
-ALMACENADO   ──► INCIDENCIA ──(resolver)──────────► ALMACENADO
-EN_TRANSITO  ──► INCIDENCIA ──(resolver)──────────► EN_TRANSITO
+Recibido     ──► Incidencia ──(almacenar normal)──► Almacenado
+Almacenado   ──► Incidencia ──(resolver)──────────► Almacenado
+En transito  ──► Incidencia ──(resolver)──────────► En transito
 ```
 
 Tabla de transiciones permitidas (fila = estado actual, columna = nuevo estado):
@@ -135,9 +143,9 @@ Tabla de transiciones permitidas (fila = estado actual, columna = nuevo estado):
 ### 2.4 Estados de la solicitud
 
 ```
-PENDIENTE ──► APROBADA   (crea el despacho)
-          ──► RECHAZADA
-          ──► ANULADA
+Pendiente ──► Aprobada   (crea el despacho)
+          ──► Rechazada
+          ──► Anulada
 ```
 - Estos tres estados son **finales** y no se pueden cambiar.
 - Solo se crea una solicitud si el paquete está **Almacenado**.
@@ -146,7 +154,7 @@ PENDIENTE ──► APROBADA   (crea el despacho)
 
 ### 2.5 Estados del despacho
 
-`EN_PROCESO` → `FINALIZADO`. Para finalizar, el despacho tiene que estar *En proceso* **y** el paquete *En tránsito*. Si el paquete está en *Incidencia*, no se puede finalizar.
+`"En proceso"` → `"Finalizado"`. Para finalizar, el despacho tiene que estar *En proceso* **y** el paquete *En tránsito*. Si el paquete está en *Incidencia*, no se puede finalizar.
 
 ### 2.6 Reglas de eliminación
 
@@ -177,13 +185,13 @@ PENDIENTE ──► APROBADA   (crea el despacho)
 | | Integrante 1 | Integrante 2 | Integrante 3 |
 |---|---|---|---|
 | **Tema** | Base, centros, personas, bodegas | Paquetes y almacenamiento | Solicitudes, despachos y reportes |
-| **Clases** | `Fecha`, `Validaciones`, `Constantes`, `Sistema`, `CentroDistribucion` (parte 1), `Cliente`, `ClienteFisico`, `ClienteEmpresa`, `Colaborador`, `Bodega`, `Celda`, `Menu` (menú principal) | `Paquete`, `RegistroBitacora`, `CentroDistribucion` (parte 2) | `Tarifas`, `SolicitudEnvio`, `Despacho`, `Reportes`, `CentroDistribucion` (parte 3) |
+| **Clases** | `Fecha`, `Validaciones`, `Sistema`, `CentroDistribucion` (parte 1), `Cliente`, `ClienteFisico`, `ClienteEmpresa`, `Colaborador`, `Bodega`, `Celda`, `Menu` (menú principal) | `Paquete`, `RegistroBitacora`, `CentroDistribucion` (parte 2) | `Tarifas`, `SolicitudEnvio`, `Despacho`, `Reportes`, `CentroDistribucion` (parte 3) |
 | **Listas** | `ListaCentros`, `ListaClientes`, `ListaColaboradores`, `ListaBodegas` | `ListaPaquetes`, `ListaBitacora` | `ListaSolicitudes`, `ListaDespachos` |
 | **Submenús** | Centros, Clientes, Colaboradores, Bodegas | Paquetes | Solicitudes, Despachos, Reportes |
 | **Reportes** | Ocupación de bodegas | Bitácora de un paquete | Los otros 4 |
 | **Puntos aprox.** | ~28 + base | ~34 | ~38 |
 
-> ⏰ **Prioridad del Integrante 1:** `Fecha`, `Validaciones`, `Constantes` y **`ListaClientes`** tienen que estar listos **primero**. `ListaClientes` sirve de **modelo**: los otros copian ese mismo patrón para hacer sus listas (ver [4.1](#41-clases-base-integrante-1)).
+> ✅ **Integrante 1: listo** (27 oct). `Fecha`, `Validaciones` y **`ListaClientes`** ya están subidos. `ListaClientes` sirve de **modelo**: los otros copian ese mismo patrón para hacer sus listas (ver [4.1](#41-clases-base-integrante-1)).
 
 ### 3.1 Dependencias entre integrantes
 
@@ -202,6 +210,7 @@ Estos métodos los **usa** un integrante pero los **escribe** otro. Hay que acor
 | Int. 2 | Eliminar paquete | `ListaSolicitudes::tieneDePaquete(p)` | Int. 3 |
 | Int. 3 | Crear y aprobar solicitudes | `Paquete`: `getEstado`, `getPeso`, `getCategoria`, `getPropietario`, `getTieneDespacho`, `setTieneDespacho`, `quitarUbicacion`, `cambiarEstado` | Int. 2 |
 | Int. 3 | Reporte clientes por envíos | `CentroDistribucion::getClientes()` (recorrer `ListaClientes`) | Int. 1 |
+| Int. 2 | Mostrar el código del paquete en la matriz | `Celda::getCodigoPaquete()` (hoy devuelve `"OCUPADA"`; hay un `TODO` para cambiarlo por `paquete->getCodigo()`) | Int. 2 lo completa |
 
 > Si alguien necesita un método que no está en esta tabla, se lo pide al dueño de la clase en el grupo.
 
@@ -209,7 +218,7 @@ Estos métodos los **usa** un integrante pero los **escribe** otro. Hay que acor
 
 | Fecha | Meta |
 | --- | --- |
-| Dom 25 – Lun 26 oct | Todos los `.h` escritos, acordados y subidos. Int. 1 sube `Fecha`, `Validaciones`, `Constantes` y `ListaClientes`. Int. 2 sube `Paquete.h` (lo necesita el Int. 3). |
+| Dom 25 – Lun 26 oct | Todos los `.h` escritos, acordados y subidos. Int. 1 sube `Fecha`, `Validaciones` y `ListaClientes`. Int. 2 sube `Paquete.h` (lo necesita el Int. 3). |
 | Mar 27 – Jue 29 oct | Cada uno implementa su módulo, sus listas y su submenú. |
 | Vie 30 oct | Integración en `main`, `cargarDatosPrueba()` completo, primeras pruebas cruzadas. |
 | Sáb 31 oct | Reportes, pruebas de todos los flujos, diagrama final y `integrantes.txt`. |
@@ -239,7 +248,7 @@ Estos métodos los **usa** un integrante pero los **escribe** otro. Hay que acor
 | `ListaSolicitudes` | `SolicitudEnvio*` | código | Int. 3 |
 | `ListaDespachos` | `Despacho*` | código | Int. 3 |
 
-- **Todas tienen los mismos métodos:** `insertarFinal(x)`, `buscar(codigo)`, `eliminar(x)`, `getPrimero()`, `getCantidad()` y `estaVacia()`. `ListaBitacora` no tiene `buscar` ni `eliminar`, porque sus registros nunca se eliminan.
+- **Todas tienen los mismos métodos:** `insertarFinal(x)`, `buscar(codigo)`, `eliminar(x)`, `getPrimero()`, `getCantidad()`, `estaVacia()` y `toString()` (devuelve el texto de todos los elementos, o "No hay … registrados." si está vacía). `ListaBitacora` no tiene `buscar` ni `eliminar`, porque sus registros nunca se eliminan.
 - **El nodo va en el mismo archivo que su lista** (`NodoCliente` dentro de `ListaClientes.h/.cpp`), porque solo esa lista lo usa.
 - **Cuidado con:**
   - El destructor de la lista **solo borra los nodos**, no los objetos a los que apuntan (agregación, como en la semana 10). Los objetos los borra su dueño (ver [6.6](#66-memoria-dinámica-quién-borra-qué)).
@@ -362,15 +371,39 @@ while (actual != nullptr) {
 - **Cuidado con:** validar que el día esté entre 1 y 31, el mes entre 1 y 12, la hora entre 0 y 23 y los minutos entre 0 y 59. Eso lo hace `Validaciones::leerFecha`.
 
 #### `Validaciones`
-- **Qué es:** funciones `static` para pedirle datos al usuario **sin que el programa se caiga** (igual que los métodos `static` de `MatrizDinamica`, semana 14).
-- **Qué debe hacer:**
-  - `leerEntero(msg, min, max)`: repite la pregunta hasta que el usuario escriba un entero dentro del rango.
-  - `leerDouble(msg, min)`: repite hasta recibir un número mayor que `min`.
-  - `leerTexto(msg)`: lee con `getline` y no acepta texto vacío.
-  - `leerFecha(msg)`: pide día, mes, año, hora y minuto válidos.
+- **Qué es:** funciones `static` para pedirle datos al usuario **sin que el programa se caiga**.
+- **Qué tiene (ya programado):**
+
+| Función | Qué hace |
+|---|---|
+| `leerEntero(msg, min, max)` | Repite la pregunta hasta que el usuario escriba un entero dentro del rango. Rechaza letras, decimales, vacíos y números que no caben en un `int`. |
+| `leerDouble(msg, min)` | Repite hasta recibir un número **mayor** que `min`. Acepta coma decimal (`1,5` = `1.5`). Para el **peso**. |
+| `leerDoubleRango(msg, min, max)` | Igual, pero acepta de `min` a `max` **incluidos**. Para el **descuento** (0 a 100). |
+| `leerTexto(msg, maximo = 100)` | Lee con `getline`, quita espacios y tabulaciones al inicio y al final, no acepta texto vacío ni más de `maximo` caracteres. Así `" PK001 "` se toma como `"PK001"`. |
+| `leerTelefono(msg)` | Solo números, de 8 a 15 dígitos. |
+| `leerCorreo(msg)` | Un solo `@`, que no vaya de primero, un punto después del `@` y sin espacios. |
+| `leerFecha(msg)` | Pide día, mes, año (1950–2100), hora y minuto. Revisa los días de cada mes y los años bisiestos: **no acepta 31/02**. Para bitácora, solicitudes y despachos. |
+| `leerFechaSinHora(msg)` | Igual, pero sin hora (queda 00:00). La usa la fecha de ingreso del colaborador. |
+| `confirmar(pregunta)` | Pregunta `(s/n)` hasta que respondan `s`/`S` o `n`/`N`. Para confirmar registros y eliminaciones, como en el Proyecto 1. |
+| `quitarEspacios(texto)` y `diasDelMes(mes, anio)` | Ayudas que usan las anteriores. |
+
 - **Cuidado con:** mezclar `cin >>` con `getline` deja un salto de línea pendiente. Por eso **todas** las lecturas se hacen con `getline` y después se convierten con `stringstream`. **Nadie usa `cin >>` directamente en los menús.**
+- **Probado (pruebas del Integrante 1):** letras, decimales, vacíos, solo espacios, tabulaciones, números gigantes (`99999999999`, `1e400`), coma decimal, fin de línea de Windows (`\r\n`), textos de 100 000 caracteres, tildes y ñ. Pasan todas.
+- **Limitaciones conocidas** (no estaban en el Proyecto 1, se dejan así):
+  - Si se cierra la entrada (Ctrl+Z en Windows), el ciclo pregunta para siempre.
+  - `leerFecha` no compara con la fecha de hoy (haría falta `<ctime>`, que no se vio), así que acepta fechas futuras.
 
 ```cpp
+// Quita espacios y tabulaciones al inicio y al final del texto.
+string Validaciones::quitarEspacios(string texto) {
+    size_t inicio = texto.find_first_not_of(" \t\r");
+    if (inicio == string::npos) {
+        return "";
+    }
+    size_t fin = texto.find_last_not_of(" \t\r");
+    return texto.substr(inicio, fin - inicio + 1);
+}
+
 // Pide un entero hasta que el usuario escriba uno valido dentro del rango.
 int Validaciones::leerEntero(string mensaje, int minimo, int maximo) {
     string linea;
@@ -380,7 +413,6 @@ int Validaciones::leerEntero(string mensaje, int minimo, int maximo) {
         stringstream ss(linea);
         int numero;
         char sobrante;
-        // Es valido si se leyo un entero y no quedo nada mas escrito
         if (ss >> numero && !(ss >> sobrante) && numero >= minimo && numero <= maximo) {
             return numero;
         }
@@ -388,69 +420,94 @@ int Validaciones::leerEntero(string mensaje, int minimo, int maximo) {
              << " y " << maximo << "." << endl;
     }
 }
+
+// Pide un numero mayor que "minimo". Acepta coma o punto decimal.
+double Validaciones::leerDouble(string mensaje, double minimo) {
+    string linea;
+    while (true) {
+        cout << mensaje;
+        getline(cin, linea);
+        // se cambia la coma por punto
+        for (int i = 0; i < (int)linea.length(); i++) {
+            if (linea[i] == ',') {
+                linea[i] = '.';
+            }
+        }
+        stringstream ss(linea);
+        double numero;
+        char sobrante;
+        if (ss >> numero && !(ss >> sobrante) && numero > minimo) {
+            return numero;
+        }
+        cout << "Error: digite un numero mayor que " << minimo << "." << endl;
+    }
+}
+
+// Pide un texto que no este vacio y que no pase de "maximo" caracteres.
+string Validaciones::leerTexto(string mensaje, int maximo) {
+    string linea;
+    while (true) {
+        cout << mensaje;
+        getline(cin, linea);
+        linea = quitarEspacios(linea);
+        if (linea == "") {
+            cout << "Error: este dato no puede quedar vacio." << endl;
+        } else if ((int)linea.length() > maximo) {
+            cout << "Error: el texto no puede tener mas de " << maximo
+                 << " caracteres." << endl;
+        } else {
+            return linea;
+        }
+    }
+}
 ```
 
-#### `Constantes.h` / `Constantes.cpp`
-- **Qué es:** las constantes de categorías y estados, más funciones para pasarlas a texto. Son `const int` normales, **no `enum`**.
-- **Qué contiene:**
+#### Estados y categorías (ya no hay `Constantes.h`)
+- **Categorías y tipos de bodega:** un `int` del **1 al 4** (1 General, 2 Frágil, 3 Tecnología, 4 Documentos). Se guarda igual en el paquete y en la bodega, así la compatibilidad es `bodega->getTipo() == paquete->getCategoria()`.
+- **Para mostrarlos**, cada clase tiene su método con `if / else if`. `Bodega` ya tiene `getNombreTipo()`; el Integrante 2 hace lo mismo en `Paquete` (`getNombreCategoria()`):
 
 ```cpp
-// Constantes.h
-#ifndef CONSTANTES_H
-#define CONSTANTES_H
-
-#include <string>
-
-// Categorias de paquete y tipos de bodega (mismos numeros)
-const int GENERAL = 1;
-const int FRAGIL = 2;
-const int TECNOLOGIA = 3;
-const int DOCUMENTOS = 4;
-
-// Estados del paquete (0 a 4, se usan como indices de la tabla de transiciones)
-const int RECIBIDO = 0;
-const int ALMACENADO = 1;
-const int EN_TRANSITO = 2;
-const int ENTREGADO = 3;
-const int INCIDENCIA = 4;
-
-// Estados de la solicitud
-const int PENDIENTE = 0;
-const int APROBADA = 1;
-const int RECHAZADA = 2;
-const int ANULADA = 3;
-
-// Estados del despacho
-const int EN_PROCESO = 0;
-const int FINALIZADO = 1;
-
-std::string textoCategoria(int categoria);
-std::string textoEstadoPaquete(int estado);
-std::string textoEstadoSolicitud(int estado);
-std::string textoEstadoDespacho(int estado);
-
-#endif
+string Bodega::getNombreTipo() {
+    if (tipo == 1) {
+        return "General";
+    } else if (tipo == 2) {
+        return "Fragil";
+    } else if (tipo == 3) {
+        return "Tecnologia";
+    } else if (tipo == 4) {
+        return "Documentos";
+    }
+    return "Desconocido";
+}
 ```
 
-- **Cuidado con:** las funciones `texto…` se **declaran** en el `.h` y se **implementan** en `Constantes.cpp`. Si se escriben completas en el `.h`, el programa no enlaza ("multiple definition") porque varios `.cpp` incluyen ese archivo.
-- **Quién:** el Integrante 1 crea los dos archivos completos para que nadie tenga que tocarlos.
+- **Estados:** se guardan como **texto** (`std::string`), igual que `"Esperando"`, `"Asignado"` y `"Cancelado"` en el Proyecto 1. Siempre se escriben **exactamente así** (sin tildes, primera letra en mayúscula):
+
+| Clase | Estados |
+|---|---|
+| `Paquete` | `"Recibido"`, `"Almacenado"`, `"En transito"`, `"Entregado"`, `"Incidencia"` |
+| `SolicitudEnvio` | `"Pendiente"`, `"Aprobada"`, `"Rechazada"`, `"Anulada"` |
+| `Despacho` | `"En proceso"`, `"Finalizado"` |
+
+- **Cuidado con:** `"Almacenado"` y `"almacenado"` son textos distintos. Si alguien escribe mal un estado, la comparación da `false` sin avisar. Copien los textos de esta tabla.
 
 ### 4.2 Núcleo (Integrante 1)
 
 #### `Sistema`
 - **Qué es:** la "empresa" TicoPack. Hay **un solo** objeto de esta clase y lo crea `main`.
 - **Qué guarda:** una `ListaCentros`.
-- **Qué debe hacer:**
-  - Agregar, buscar y eliminar centros. Para eliminar, primero pregunta `centro->puedeEliminarse()`.
-  - `existePaquete`, `existeSolicitud` y `existeDespacho`: recorren **todos** los centros para verificar que un código global no esté repetido. Usan `buscarPaquete`, `buscarSolicitud` y `buscarDespacho` de cada centro.
-  - `cargarDatosPrueba()`: llena el sistema con datos de ejemplo. Cada integrante agrega su parte.
+- **Qué tiene (ya programado):**
+  - `agregarCentro`, `buscarCentro`, `eliminarCentro` (primero pregunta `centro->puedeEliminarse()`), `listarCentros`, `listarCodigosCentros` (lista corta que ve el usuario al escoger un centro) y `tieneCentros`.
+  - `existePaquete`, `existeSolicitud` y `existeDespacho`: recorren **todos** los centros. **Pendiente:** cada una tiene comentada la línea que llama a `buscarPaquete` / `buscarSolicitud` / `buscarDespacho`; el Int. 2 y el Int. 3 la descomentan cuando existan esos métodos. Mientras tanto devuelven `false`.
+  - `cargarDatosPrueba()`: ya trae la parte del Integrante 1 (ver [6.9](#69-datos-de-prueba-cargardatosprueba)). Si `C01` ya existe, no carga nada otra vez.
 - **Cuidado con:** el destructor de `Sistema` borra los centros.
 
 #### `CentroDistribucion`
 - **Qué es:** un centro de distribución. Es la clase **más importante**, porque es dueña de todas las listas y ahí vive la lógica de las operaciones.
 - **Qué guarda:** código, nombre, provincia, dirección, teléfono y **6 listas**: `ListaClientes`, `ListaColaboradores`, `ListaBodegas`, `ListaPaquetes`, `ListaSolicitudes` y `ListaDespachos`.
 - **Qué debe hacer:** está dividida en 3 partes, una por integrante:
-  - **Parte 1 (Integrante 1):** agregar, buscar y eliminar clientes, colaboradores y bodegas, más `puedeEliminarse()`.
+  - **Parte 1 (Integrante 1, listo):** para clientes, colaboradores y bodegas hay `agregarX(x)`, `buscarX(id)`, `puedeEliminarX(x)` (imprime el motivo si no se puede), `eliminarX(x)` (quita de la lista y hace `delete`) y `listarX()`. También `puedeEliminarse()`, `getClientes()` (para el Int. 3) y `getBodegas()` (para el reporte de ocupación).
+  - Las revisiones que dependen de los otros (por ejemplo `paquetes.tieneDeCliente(cliente)` dentro de `puedeEliminarCliente`) ya están escritas **como comentario** con `// TODO Integrante 2` o `// TODO Integrante 3`. Solo hay que descomentarlas.
   - **Parte 2 (Integrante 2):** paquetes, almacenar, recomendar, reubicar e incidencias.
   - **Parte 3 (Integrante 3):** crear, aprobar, rechazar y anular solicitudes, y finalizar despachos.
 - **Cuidado con:**
@@ -476,43 +533,43 @@ while (actual != nullptr) {
 - **Qué debe hacer:**
   - `getTipo()`: método **virtual puro** que devuelve `"Fisico"` o `"Empresa"`.
   - `aplicarDescuento(costoBase)`: método **virtual**. Por defecto devuelve el mismo costo, sin descuento.
-  - `mostrar()`: método **virtual** que imprime los datos comunes.
+  - `toString()`: método **virtual** que devuelve los datos comunes. `mostrar()` lo imprime.
 - **Cuidado con:** el **destructor virtual** (`virtual ~Cliente() {}`) es obligatorio. Sin él, borrar un `Cliente*` que en realidad es una `ClienteEmpresa` no libera bien la memoria (semana 9 y 15).
 
 #### `ClienteFisico`
 - **Qué es:** un cliente persona física. No agrega atributos.
-- **Qué debe hacer:** implementar `getTipo()` y `mostrar()` con `override`.
+- **Qué debe hacer:** implementar `getTipo()` con `override`. No necesita su propio `toString()`.
 
 #### `ClienteEmpresa`
 - **Qué es:** un cliente empresa.
 - **Qué guarda (además):** actividad económica y porcentaje de descuento (0 a 100).
-- **Qué debe hacer:** **sobrescribir `aplicarDescuento`** para que devuelva `costoBase - costoBase * porcentajeDescuento / 100`.
+- **Qué debe hacer:** **sobrescribir `aplicarDescuento`** para que devuelva `costoBase - costoBase * porcentajeDescuento / 100`, y `toString()`, que llama a `Cliente::toString()` y agrega la actividad y el descuento. Si le llega un descuento fuera de 0–100, lo deja en 0 o en 100.
 - **Cuidado con:** esto es **polimorfismo**. Así, `SolicitudEnvio` no necesita preguntar con un `if` ni con `dynamic_cast` si el cliente es empresa, solo llama a `cliente->aplicarDescuento(base)`. Es algo que el profesor puede preguntar en la defensa (semana 15: "cambiar un if-else por polimorfismo").
 
 #### `Colaborador`
 - **Qué es:** un empleado del centro.
 - **Qué guarda:** identificación, nombre completo, fecha de ingreso y puesto.
-- **Qué debe hacer:** mostrarse. Aparece como "responsable" en la bitácora, en las solicitudes y en los despachos.
+- **Qué debe hacer:** `toString()` y `mostrar()`. Aparece como "responsable" en la bitácora, en las solicitudes y en los despachos.
 
 ### 4.4 Bodegas (Integrante 1)
 
 #### `Celda`
 - **Qué es:** una posición de la bodega.
 - **Qué guarda:** un `Paquete*`. Si vale `nullptr`, la celda está **libre**.
-- **Qué debe hacer:** `estaLibre()`, `ocupar(p)`, `liberar()` y `getPaquete()`.
+- **Qué debe hacer:** `estaLibre()`, `ocupar(p)`, `liberar()`, `getPaquete()` y `getCodigoPaquete()` (devuelve `"LIBRE"` o el código del paquete; el Int. 2 completa esa línea cuando exista `Paquete.h`).
 - **Cuidado con:** la celda **nunca** hace `delete` del paquete, solo lo apunta.
 
 #### `Bodega`
 - **Qué es:** una bodega organizada en filas y columnas.
-- **Qué guarda:** código, nombre, tipo (1 a 4), filas, columnas y `Celda** matriz`.
+- **Qué guarda:** código, nombre, tipo (1 a 4), filas, columnas y `Celda** matriz`. Tamaño permitido en el menú: **1 a 30 filas** y **1 a 10 columnas** (para que la matriz quepa en la consola).
 - **Qué debe hacer:**
   - **Constructor:** reservar la matriz con `new` (ver el código abajo).
   - **Destructor:** liberar la matriz con `delete[]`, primero las filas y luego el arreglo de punteros.
   - `posicionValida(f, c)`: `0 <= f < filas` y `0 <= c < columnas`.
   - `estaLibre`, `asignar`, `liberar` y `getPaquete` sobre una posición.
-  - `totalCeldas()`, `celdasOcupadas()`, `porcentajeOcupacion()` y `porcentajeDisponible()`.
+  - `totalCeldas()`, `celdasOcupadas()`, `celdasLibres()`, `porcentajeOcupacion()`, `porcentajeDisponible()` y `estaVacia()` (todas las celdas libres).
   - `primeraCeldaLibre(f, c)`: recorre fila por fila y devuelve la primera celda libre (por referencia). Devuelve `false` si está llena.
-  - `mostrarMatriz()`: dibuja la bodega en consola.
+  - `getNombreTipo()`, `nombreCelda(f, c)` (`"A-1-2"`) y `mostrarMatriz()`, que dibuja la bodega en consola (formato en [6.8](#68-formatos-de-salida)).
 - **Cuidado con:**
   - `asignar` y `liberar` **siempre** validan primero la posición.
   - **Regla de los Tres (semana 14):** como `Bodega` maneja memoria dinámica, una copia por defecto haría que dos bodegas compartan la misma matriz y se borre dos veces. Las bodegas **siempre se manejan por puntero (`Bodega*`) y nunca se copian**. Si el profe pregunta, eso es lo que hay que explicar.
@@ -534,35 +591,32 @@ matriz = nullptr;
 
 #### `Paquete`
 - **Qué es:** un paquete que la empresa recibe.
-- **Qué guarda:** código, descripción, peso, categoría, estado, código del centro, `propietario` (Cliente\*), `bodega` (Bodega\*, `nullptr` si no está guardado), `fila`, `columna` (−1 si no tiene), la `bitacora` (`ListaBitacora`) y `tieneDespacho`.
+- **Qué guarda:** código, descripción, peso, categoría (`int` 1 a 4), estado (`string`), código del centro, `propietario` (Cliente\*), `bodega` (Bodega\*, `nullptr` si no está guardado), `fila`, `columna` (−1 si no tiene), la `bitacora` (`ListaBitacora`) y `tieneDespacho`.
 - **Qué debe hacer:**
-  - `puedeCambiarA(nuevo)`: revisa la tabla de transiciones con una **matriz local** (ver el código abajo).
+  - `puedeCambiarA(nuevo)`: revisa la tabla de transiciones con `if` (ver el código abajo).
   - `cambiarEstado(nuevo, fecha, responsable)`: si la transición es válida, crea un `RegistroBitacora`, lo agrega a la bitácora y cambia el estado. **No mueve celdas**, eso lo hacen las operaciones.
   - `asignarUbicacion(b, f, c)`: guarda dónde está el paquete.
   - `quitarUbicacion()`: **libera la celda en la bodega** (`bodega->liberar(fila, columna)`) y pone `bodega = nullptr`, `fila = columna = -1`.
   - `tieneUbicacion()`: devuelve `bodega != nullptr`.
   - `tieneRegistroDe(col)`: dice si el colaborador aparece en la bitácora (lo usa el Int. 1 para eliminar colaboradores).
-  - `mostrar()` y `mostrarBitacora()`.
+  - `getNombreCategoria()`, `mostrar()` y `mostrarBitacora()`.
 - **Cuidado con:**
   - El destructor borra los registros de su bitácora (el `Paquete` es dueño de sus registros).
-  - Un paquete nuevo empieza en `RECIBIDO`, sin bodega y **sin registros en la bitácora**, porque todavía no hubo un cambio de estado.
+  - Un paquete nuevo empieza en `"Recibido"`, sin bodega y **sin registros en la bitácora**, porque todavía no hubo un cambio de estado.
 
 ```cpp
 // Revisa la tabla de transiciones del enunciado.
-bool Paquete::puedeCambiarA(int nuevo) {
-    if (nuevo < RECIBIDO || nuevo > INCIDENCIA) {
-        return false;
+bool Paquete::puedeCambiarA(string nuevo) {
+    if (estado == "Recibido") {
+        return nuevo == "Almacenado" || nuevo == "Incidencia";
+    } else if (estado == "Almacenado") {
+        return nuevo == "En transito" || nuevo == "Incidencia";
+    } else if (estado == "En transito") {
+        return nuevo == "Entregado" || nuevo == "Incidencia";
+    } else if (estado == "Incidencia") {
+        return nuevo == "Almacenado" || nuevo == "En transito";
     }
-    // Fila = estado actual, columna = estado nuevo
-    const bool tabla[5][5] = {
-        //            REC    ALM    TRA    ENT    INC
-        /* REC */  { false, true,  false, false, true  },
-        /* ALM */  { false, false, true,  false, true  },
-        /* TRA */  { false, false, false, true,  true  },
-        /* ENT */  { false, false, false, false, false },
-        /* INC */  { false, true,  true,  false, false }
-    };
-    return tabla[estado][nuevo];
+    return false;          // "Entregado" ya no cambia
 }
 ```
 
@@ -613,13 +667,13 @@ const double Tarifas::TARIFA_DOCUMENTOS = 1000;
 - **Qué guarda:** código, cliente, paquete, responsable, código del centro de origen, destino (texto), fecha, costo estimado y estado.
 - **Qué debe hacer:**
   - `calcularCosto()`: calcula `base = peso * Tarifas::obtener(categoria)` y devuelve `cliente->aplicarDescuento(base)`. El resultado se guarda en `costoEstimado` al crear la solicitud.
-  - `cambiarEstado(nuevo)`: solo permite pasar de `PENDIENTE` a otro estado.
+  - `cambiarEstado(nuevo)`: solo permite pasar de `"Pendiente"` a otro estado.
   - `mostrar()`.
 
 #### `Despacho`
 - **Qué es:** el envío real del paquete. Se crea **solo** al aprobar una solicitud.
 - **Qué guarda:** código, solicitud, paquete, cliente, responsable, centro de origen, destino, fecha con hora y estado.
-- **Qué debe hacer:** `finalizar()`, que cambia el estado a `FINALIZADO`, y `mostrar()`.
+- **Qué debe hacer:** `finalizar()`, que cambia el estado a `"Finalizado"`, y `mostrar()`.
 - **Cuidado con:** el cliente, el paquete, el responsable y el destino se copian de la solicitud **al crearlo**, para no tener que hacer cadenas como `d->getSolicitud()->getPaquete()->...` (Ley de Demeter).
 
 #### `ListaSolicitudes` y `ListaDespachos`
@@ -635,7 +689,7 @@ const double Tarifas::TARIFA_DOCUMENTOS = 1000;
 | `clientesPorEnvios` | Int. 3 | Cuenta los despachos **finalizados** de cada cliente y los ordena de mayor a menor con **burbuja** (ver abajo). |
 | `bitacoraPaquete` | Int. 2 | Muestra la bitácora en orden: anterior, nuevo, fecha y colaborador. |
 | `despachoDePaquete` | Int. 3 | Busca la solicitud *Aprobada* y el despacho de ese paquete. Si no tiene, lo indica. |
-| `ocupacionBodegas` | Int. 1 | Para cada bodega del centro: total de celdas, ocupadas, libres y % de ocupación. |
+| `ocupacionBodegas` | Int. 1 (listo) | Para cada bodega del centro: total de celdas, ocupadas, libres y % de ocupación, más el total del centro. |
 | `despachosPorColaborador` | Int. 3 | Muestra los despachos donde ese colaborador es el responsable. |
 
 **Ordenamiento de `clientesPorEnvios`:** copiar los clientes a un arreglo dinámico (`Cliente** arr = new Cliente*[n]`) junto con un arreglo `int* cant = new int[n]`. Después se aplica **burbuja** con comparación **estricta** (`if (cant[j] < cant[j+1])` → intercambiar). Así, cuando hay empate, se mantiene el orden original. Al final se hace `delete[]` de ambos arreglos.
@@ -646,6 +700,9 @@ const double Tarifas::TARIFA_DOCUMENTOS = 1000;
 - **Qué es:** toda la interacción con el usuario.
 - **Qué guarda:** un puntero a `Sistema`.
 - **Qué debe hacer:** mostrar el menú principal y llamar a cada submenú. Cada integrante programa **sus** submenús.
+- **Ya está (Integrante 1):** menú principal, submenús de centros, clientes, colaboradores y bodegas, y el menú de reportes con la opción 5. Las opciones 5, 6 y 7 del menú principal dicen "todavía no está disponible" y tienen un `// TODO` para cambiarlas por `menuPaquetes()`, `menuSolicitudes()` y `menuDespachos()`.
+- **Ayudas que pueden usar todos:** `pedirCentro()` (muestra los centros y devuelve `nullptr` si el código no existe), `pedirTipoBodega()`, `pedirProvincia()`, `pausar()` y `limpiarPantalla()`.
+- Los submenús de clientes, colaboradores y bodegas piden el centro **una vez al entrar** y trabajan sobre ese centro. Hagan lo mismo en sus submenús.
 - **Cuidado con:** el menú **pide y muestra datos**. La lógica (validar reglas, cambiar estados, mover celdas) está en las clases. Ver [6.4](#64-separación-menú--lógica).
 
 #### `main.cpp`
@@ -670,48 +727,48 @@ Estos flujos conectan el trabajo de varios integrantes. **Respétenlos tal cual*
 1. El menú pide el centro y verifica que exista.
 2. Pide el código y verifica que `sistema->existePaquete(codigo)` sea `false`.
 3. Pide descripción (no vacía), peso (> 0), categoría (1–4) y el cliente, que debe existir **en ese centro**.
-4. Crea `new Paquete(...)` con estado `RECIBIDO`, sin bodega y con la bitácora vacía.
+4. Crea `new Paquete(...)` con estado `"Recibido"`, sin bodega y con la bitácora vacía.
 5. `centro->agregarPaquete(p)`.
 
 ### 5.2 Almacenar un paquete (Int. 2, usa `Bodega` del Int. 1)
-1. Solo se permite si el paquete está `RECIBIDO`, o en `INCIDENCIA` sin ubicación y sin despacho.
+1. Solo se permite si el paquete está `"Recibido"`, o en `"Incidencia"` sin ubicación y sin despacho.
 2. `centro->recomendarBodega(categoria)`: entre las bodegas **del mismo tipo** que tengan al menos una celda libre, elige la de **mayor `porcentajeDisponible()`**. Si hay empate, gana la primera de la lista.
 3. Si no hay ninguna, se informa al usuario y **no se cambia nada**.
 4. Se recomienda `bodega->primeraCeldaLibre(f, c)` y se muestra la matriz.
 5. El usuario acepta la recomendación o escoge otra bodega compatible y otra celda libre.
 6. Se pide el colaborador responsable, que debe ser del mismo centro.
-7. `bodega->asignar(f, c, p)` → `p->asignarUbicacion(b, f, c)` → `p->cambiarEstado(ALMACENADO, fecha, colaborador)`.
+7. `bodega->asignar(f, c, p)` → `p->asignarUbicacion(b, f, c)` → `p->cambiarEstado("Almacenado", fecha, colaborador)`.
 
 ### 5.3 Reubicar un paquete (Int. 2)
-1. El paquete tiene que estar `ALMACENADO`.
+1. El paquete tiene que estar `"Almacenado"`.
 2. Se valida el destino: la bodega existe en el centro, es compatible, la posición es válida, la celda está libre y no es la misma celda actual.
 3. **Solo si todo es válido:** `p->quitarUbicacion()` → `nueva->asignar(f, c, p)` → `p->asignarUbicacion(nueva, f, c)`.
 4. Si algo falla, **no se toca nada**. El estado no cambia y no se escribe en la bitácora.
 
 ### 5.4 Crear una solicitud (Int. 3)
 1. Verificar que el código no exista (`sistema->existeSolicitud`).
-2. El paquete tiene que estar `ALMACENADO`, sin solicitud `PENDIENTE` (`centro->tieneSolicitudPendiente(p)`) y con `!p->getTieneDespacho()`.
+2. El paquete tiene que estar `"Almacenado"`, sin solicitud `"Pendiente"` (`centro->tieneSolicitudPendiente(p)`) y con `!p->getTieneDespacho()`.
 3. El cliente es el propietario del paquete (se toma de `p->getPropietario()`). El responsable debe ser del mismo centro.
-4. Se crea la solicitud con estado `PENDIENTE` y se calcula el costo con `calcularCosto()`.
+4. Se crea la solicitud con estado `"Pendiente"` y se calcula el costo con `calcularCosto()`.
 
 ### 5.5 Aprobar una solicitud (Int. 3, usa `Paquete` del Int. 2)
-1. Validar: la solicitud está `PENDIENTE`, el paquete está `ALMACENADO` y `!p->getTieneDespacho()`.
+1. Validar: la solicitud está `"Pendiente"`, el paquete está `"Almacenado"` y `!p->getTieneDespacho()`.
 2. Verificar que el código de despacho no exista (`sistema->existeDespacho`).
-3. `s->cambiarEstado(APROBADA)`.
-4. Crear `new Despacho(...)` con estado `EN_PROCESO` y agregarlo a la lista del centro.
+3. `s->cambiarEstado("Aprobada")`.
+4. Crear `new Despacho(...)` con estado `"En proceso"` y agregarlo a la lista del centro.
 5. `p->quitarUbicacion()`, que libera la celda.
-6. `p->cambiarEstado(EN_TRANSITO, fecha, s->getResponsable())`.
+6. `p->cambiarEstado("En transito", fecha, s->getResponsable())`.
 7. `p->setTieneDespacho(true)`.
 
 ### 5.6 Finalizar un despacho (Int. 3)
-1. Validar: el despacho está `EN_PROCESO` y el paquete está `EN_TRANSITO`.
-2. `d->finalizar()` → `p->cambiarEstado(ENTREGADO, fecha, d->getResponsable())`.
+1. Validar: el despacho está `"En proceso"` y el paquete está `"En transito"`.
+2. `d->finalizar()` → `p->cambiarEstado("Entregado", fecha, d->getResponsable())`.
 
 ### 5.7 Incidencias (Int. 2)
-- **Registrar:** se permite desde `RECIBIDO`, `ALMACENADO` o `EN_TRANSITO`. Se llama a `p->cambiarEstado(INCIDENCIA, ...)` y **no se toca la celda**.
+- **Registrar:** se permite desde `"Recibido"`, `"Almacenado"` o `"En transito"`. Se llama a `p->cambiarEstado("Incidencia", ...)` y **no se toca la celda**.
 - **Resolver:**
-  - Si `p->tieneUbicacion()`, pasa a `ALMACENADO`.
-  - Si no, y `p->getTieneDespacho()`, pasa a `EN_TRANSITO`.
+  - Si `p->tieneUbicacion()`, pasa a `"Almacenado"`.
+  - Si no, y `p->getTieneDespacho()`, pasa a `"En transito"`.
   - Si no tiene ninguna de las dos, se avisa: *"Use la opción Almacenar paquete"*.
 - La opción general de "cambiar estado" del menú de paquetes **solo** permite registrar y resolver incidencias. Así no se pueden saltar las operaciones obligatorias.
 
@@ -727,7 +784,7 @@ Estos flujos conectan el trabajo de varios integrantes. **Respétenlos tal cual*
 | Listas y nodos | `Lista` / `Nodo` + tipo | `ListaPaquetes`, `NodoPaquete` |
 | Métodos y funciones | `camelCase`, empiezan con verbo | `buscarCliente()`, `calcularCosto()` |
 | Atributos y variables | `camelCase` | `porcentajeDescuento`, `codigoCentro` |
-| Constantes | `MAYUSCULAS_CON_GUION` | `EN_TRANSITO`, `GENERAL`, `TARIFA_FRAGIL` |
+| Constantes | `MAYUSCULAS_CON_GUION` | `TARIFA_FRAGIL`, `MAXIMO_FILAS` |
 | Getters / setters | `getX()` / `setX()` | `getCodigo()`, `setEstado()` |
 | Booleanos | `es…`, `esta…`, `tiene…`, `puede…` | `estaLibre()`, `tieneDespacho`, `puedeEliminarse()` |
 | Archivos | Igual que la clase | `ClienteEmpresa.h`, `ClienteEmpresa.cpp` |
@@ -740,7 +797,6 @@ Estos flujos conectan el trabajo de varios integrantes. **Respétenlos tal cual*
 ```
 TicoPack/
 ├── main.cpp
-├── Constantes.h / .cpp
 ├── Fecha.h / .cpp
 ├── Validaciones.h / .cpp
 ├── Sistema.h / .cpp
@@ -783,7 +839,6 @@ TicoPack/
 
 #include <string>
 #include "Fecha.h"
-#include "Constantes.h"
 #include "ListaBitacora.h"
 
 class Cliente;      // declaraciones adelantadas: solo usamos punteros
@@ -806,7 +861,7 @@ public:
     // ...
 
     // Cambia el estado si la tabla lo permite y lo registra en la bitacora.
-    bool cambiarEstado(int nuevo, Fecha fecha, Colaborador* responsable);
+    bool cambiarEstado(std::string nuevo, Fecha fecha, Colaborador* responsable);
 };
 
 #endif
@@ -833,6 +888,8 @@ public:
 - Las operaciones que pueden fallar devuelven **`bool`**: `true` si salió bien y `false` si no.
 - Si fallan, **el mismo método imprime el motivo** con el formato `Error: <motivo>`.
 - Las búsquedas devuelven un **puntero**, o **`nullptr`** si no encuentran nada. Las búsquedas **no imprimen nada**.
+- Las funciones **`agregar…`** (`agregarCentro`, `agregarCliente`, `agregarBodega`, …) devuelven `false` si el código ya existe y en ese caso **hacen `delete` del objeto** (igual que `registrarCancha` del Proyecto 1). Después de un `false`, **no vuelvan a usar ese puntero**. Hagan lo mismo en `agregarPaquete`, `crearSolicitud`, etc.
+- Antes de eliminar, el menú llama a `puedeEliminarX(x)`, muestra los datos, pide `Validaciones::confirmar(...)` y solo entonces llama a `eliminarX(x)`.
 
 ```cpp
 // En Menu
@@ -848,10 +905,9 @@ if (p == nullptr) {
 
 ### 6.5 Estados y categorías
 
-- Siempre se usan las **constantes de `Constantes.h`** y **nunca números sueltos**: `p->getEstado() == ALMACENADO`, no `== 1`.
-- En los atributos, los estados y categorías se guardan como `int`.
-- Para mostrarlos se usa `textoEstadoPaquete(estado)`, etc.
-- Al pedirle una categoría o tipo al usuario, se muestra la lista numerada:
+- **Estados = texto**, escrito exactamente como en la tabla de [4.1](#estados-y-categorías-ya-no-hay-constantesh): `p->getEstado() == "Almacenado"`.
+- **Categorías y tipos = `int` del 1 al 4**, y cada clase los pasa a texto con su método (`getNombreTipo()`, `getNombreCategoria()`).
+- Al pedirle una categoría o tipo al usuario, se muestra la lista numerada (ya lo hace `Menu::pedirTipoBodega()`):
   ```
   1. General   2. Fragil   3. Tecnologia   4. Documentos
   ```
@@ -894,15 +950,19 @@ if (p == nullptr) {
 - Para los decimales: `#include <iomanip>` y `cout << fixed << setprecision(2);`.
 - **Evitamos tildes, ñ y el símbolo ¢ en los mensajes de consola**, porque en Windows salen caracteres raros. Escribimos `Fragil`, `Tecnologia`, `CRC`.
 
-**Matriz de bodega:**
+**Matriz de bodega** (así la dibuja `Bodega::mostrarMatriz()`, con `\t` entre celdas y una línea en blanco entre filas, como el ejemplo del enunciado):
 ```
-Bodega A - General (5 x 6)
-          Col 0     Col 1     Col 2     Col 3
-Fila 0   [LIBRE ]  [PK101 ]  [LIBRE ]  [LIBRE ]
-Fila 1   [LIBRE ]  [LIBRE ]  [LIBRE ]  [PK208 ]
+Bodega A - Bodega principal - General (4 x 5)
+
+A-0-0	A-0-1	A-0-2	A-0-3	A-0-4
+LIBRE	PK101	LIBRE	LIBRE	LIBRE
+
+A-1-0	A-1-1	A-1-2	A-1-3	A-1-4
+LIBRE	LIBRE	LIBRE	PK208	LIBRE
 ...
-Ocupadas: 4/30 (13.33%)
+Ocupadas: 2/20 (10.00%)
 ```
+- No usamos `setw` ni tablas alineadas. Los reportes muestran cada dato en su propia línea (`Total de celdas: 20`), como en el `Reporte` del Proyecto 1.
 
 **Menús:** todos siguen el mismo formato.
 ```
@@ -921,8 +981,9 @@ Seleccione una opcion:
 - Después de cada operación se muestra `Presione Enter para continuar...`.
 - Si un submenú necesita un centro, se pide el **código del centro** primero.
 
-**Menú principal** (los grupos que exige el enunciado):
+**Menú principal** (los grupos que exige el enunciado; ya está programado):
 ```
+===== TICOPACK LOGISTICS - MENU PRINCIPAL =====
 1. Centros de distribucion
 2. Clientes
 3. Colaboradores
@@ -947,6 +1008,14 @@ Usamos los mismos formatos de código en todo el proyecto:
 | Paquete | `PK` + 3 dígitos | `PK001` |
 | Solicitud | `SO` + 3 dígitos | `SO001` |
 | Despacho | `DE` + 3 dígitos | `DE001` |
+
+**Lo que ya carga el Integrante 1:**
+
+| Centro | Bodegas | Clientes | Colaboradores |
+|---|---|---|---|
+| `C01` Centro San Jose | `A` General 4×5, `B` Frágil 3×4 | `1-1111-1111` Ana Mora (físico), `2-2222-2222` Luis Vargas (físico), `3-101-123456` Tecnologia Tica S.A. (empresa, 15 %) | `COL01` Carlos Mendez, `COL02` Sofia Ramirez |
+| `C02` Centro Alajuela | `A` Tecnología 3×3, `B` Documentos 2×5 | `1-3333-3333` Maria Jimenez (físico), `3-101-654321` Libreria El Saber S.A. (empresa, 10 %) | `COL01` Jorge Castillo, `COL02` Daniela Rojas |
+| `C03` Centro Limon | — | — | — (vacío, para probar "eliminar centro") |
 
 **Mínimo que deben cargar:**
 - 2 centros, cada uno con 2 bodegas de tipos distintos.
@@ -980,8 +1049,9 @@ Cada integrante escribe su bloque dentro de `cargarDatosPrueba()` y lo marca con
 
 ### 6.11 Comentarios
 
-- Los comentarios van en español y son breves.
-- Pongan una línea arriba de cada método explicando **qué hace**, no cómo lo hace.
+- Los comentarios van en español y son **cortos**: solo donde algo no se entiende con leer el código (`// era el primero`, `// evita dividir entre 0`).
+- **No** escriban párrafos explicando la clase, **no** pongan "Paso 1, Paso 2" y **no** mencionen el material ni el Proyecto 1 ("como en la semana 13").
+- Lo que le toca a otro integrante se marca con `// TODO Integrante N: ...` justo donde va.
 - Las reglas importantes del enunciado se comentan donde se aplican:
   ```cpp
   // Regla 9: solo se aprueba si la solicitud sigue Pendiente
@@ -997,7 +1067,8 @@ Antes de unir su parte a `main`, revisen:
 
 - [ ] Compila sin errores.
 - [ ] Ningún `vector`, `list`, `map`, `sort` ni nada parecido de la STL.
-- [ ] Ningún `template` ni `enum`.
+- [ ] Ningún `template`, `enum` ni `setw`.
+- [ ] Los estados se escriben igual que en la tabla de [4.1](#estados-y-categorías-ya-no-hay-constantesh).
 - [ ] Mis listas siguen el modelo de `ListaClientes` (mismos nombres de métodos).
 - [ ] Cada `new` tiene su `delete` (o `delete[]`) en el lugar correcto.
 - [ ] Todas las entradas usan `Validaciones`.
@@ -1009,6 +1080,7 @@ Antes de unir su parte a `main`, revisen:
 - [ ] Los nombres siguen las convenciones de la sección 6.1.
 - [ ] Agregué mis datos de prueba en `cargarDatosPrueba()`.
 - [ ] Hice los métodos que otros me pidieron en la tabla [3.1](#31-dependencias-entre-integrantes).
+- [ ] Descomenté los `// TODO` con mi nombre en los archivos de los demás.
 - [ ] Le expliqué a los otros dos lo que hice (por la defensa oral).
 
 ### Checklist final de entrega
