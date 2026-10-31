@@ -2,9 +2,9 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Reportes.h"
-#include "CentroDistribucion.h"
-#include "Bodega.h"
+#include "../Encabezados/Reportes.h"
+#include "../Encabezados/CentroDistribucion.h"
+#include "../Encabezados/Bodega.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;

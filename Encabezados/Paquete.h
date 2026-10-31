@@ -1,4 +1,4 @@
-#include <iostream>
+#pragma once
 #include <string>
 #include "Cliente.h"
 #include "CentroDistribucion.h"
@@ -8,14 +8,15 @@ class Paquete {
 private:
     string nombre;
     string descripcion;
-    float peso;
+    double peso;
     string categoria;
-    Cliente cliente;
-    CentroDistribucion centroDistribucion;
+    Cliente* cliente;
+    CentroDistribucion* centroDistribucion;
     string estado;
 
 public:
-     Paquete();
+     Paquete(string nombre,string descripcion, double peso, string categoria, Cliente* cliente,
+    CentroDistribucion* centroDistribucion, string estado);
      ~Paquete();
 
      string getNombre();
@@ -42,7 +43,7 @@ public:
 
     void setCentroDistribucion(const CentroDistribucion &centro_distribucion);
 
-     string estado();
+     string getEstado();
 
     void setEstado(const string &estado);
 };

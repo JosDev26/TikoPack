@@ -6,7 +6,7 @@
 #define COLABORADOR_H
 
 #include <string>
-#include "Fecha.h"
+#include "../Josue-PG1/Fecha.h"
 
 class Colaborador {
 private:

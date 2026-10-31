@@ -2,7 +2,7 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Celda.h"
+#include "../Encabezados/Celda.h"
 // TODO Integrante 2: descomentar cuando exista Paquete.h
 // #include "Paquete.h"
 using namespace std;

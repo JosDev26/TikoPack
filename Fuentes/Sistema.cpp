@@ -2,13 +2,13 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Sistema.h"
-#include "CentroDistribucion.h"
-#include "ClienteFisico.h"
-#include "ClienteEmpresa.h"
-#include "Colaborador.h"
-#include "Bodega.h"
-#include "Fecha.h"
+#include "../Encabezados/Sistema.h"
+#include "../Encabezados/CentroDistribucion.h"
+#include "../Encabezados/ClienteFisico.h"
+#include "../Encabezados/ClienteEmpresa.h"
+#include "../Encabezados/Colaborador.h"
+#include "../Encabezados/Bodega.h"
+#include "../Encabezados/Fecha.h"
 #include <iostream>
 #include <sstream>
 using namespace std;

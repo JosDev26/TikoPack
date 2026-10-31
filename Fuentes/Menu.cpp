@@ -2,16 +2,16 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Menu.h"
-#include "Sistema.h"
-#include "CentroDistribucion.h"
-#include "ClienteFisico.h"
-#include "ClienteEmpresa.h"
-#include "Colaborador.h"
-#include "Bodega.h"
-#include "Fecha.h"
-#include "Validaciones.h"
-#include "Reportes.h"
+#include "../Encabezados/Menu.h"
+#include "../Encabezados/Sistema.h"
+#include "../Encabezados/CentroDistribucion.h"
+#include "../Encabezados/ClienteFisico.h"
+#include "../Encabezados/ClienteEmpresa.h"
+#include "../Encabezados/Colaborador.h"
+#include "../Encabezados/Bodega.h"
+#include "../Encabezados/Fecha.h"
+#include "../Encabezados/Validaciones.h"
+#include "../Encabezados/Reportes.h"
 #include <iostream>
 #include <cstdlib>
 using namespace std;

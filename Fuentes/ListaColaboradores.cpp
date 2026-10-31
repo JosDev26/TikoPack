@@ -2,8 +2,8 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "ListaColaboradores.h"
-#include "Colaborador.h"
+#include "../Encabezados/ListaColaboradores.h"
+#include "../Encabezados/Colaborador.h"
 #include <sstream>
 using namespace std;
 

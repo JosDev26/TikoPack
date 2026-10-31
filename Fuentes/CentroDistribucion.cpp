@@ -2,10 +2,11 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "CentroDistribucion.h"
-#include "Cliente.h"
-#include "Colaborador.h"
-#include "Bodega.h"
+#include "../Encabezados/CentroDistribucion.h"
+#include "../Encabezados/Cliente.h"
+#include "../Encabezados/Colaborador.h"
+#include "../Encabezados/Bodega.h"
+#include "../Encabezados/Paquete.h"
 #include <iostream>
 #include <sstream>
 using namespace std;
@@ -88,7 +89,10 @@ bool CentroDistribucion::puedeEliminarse() {
         cout << "Error: el centro tiene bodegas registradas." << endl;
         return false;
     }
-    // TODO Integrante 2: revisar que paquetes.estaVacia() sea true
+    if (!paquetes.estaVacia()) {
+        cout << "Error: el centro tiene paquetes registradas." << endl;
+        return false;
+    }
     // TODO Integrante 3: revisar que solicitudes.estaVacia() y despachos.estaVacia() sean true
     return true;
 }
@@ -123,11 +127,11 @@ bool CentroDistribucion::puedeEliminarCliente(Cliente* cliente) {
         return false;
     }
     // Solo se elimina si no tiene paquetes, solicitudes ni despachos.
-    // TODO Integrante 2:
-    // if (paquetes.tieneDeCliente(cliente)) {
-    //     cout << "Error: el cliente tiene paquetes registrados." << endl;
-    //     return false;
-    // }
+
+    if (paquetes.tieneDeCliente(cliente)) {
+         cout << "Error: el cliente tiene paquetes registrados." << endl;
+         return false;
+     }
     // TODO Integrante 3: lo mismo con solicitudes.tieneDeCliente(cliente)
     // y despachos.tieneDeCliente(cliente)
     return true;
@@ -178,11 +182,12 @@ bool CentroDistribucion::puedeEliminarColaborador(Colaborador* colaborador) {
         return false;
     }
     // Solo se elimina si no es responsable de nada.
-    // TODO Integrante 2:
-    // if (paquetes.colaboradorEnBitacoras(colaborador)) {
-    //     cout << "Error: el colaborador aparece en la bitacora de un paquete." << endl;
-    //     return false;
-    // }
+
+     if (paquetes.colaboradorEnBitacoras(colaborador)) {
+         cout << "Error: el colaborador aparece en la bitacora de un paquete." << endl;
+
+         return false;
+     }
     // TODO Integrante 3: lo mismo con solicitudes.tieneDeResponsable(colaborador)
     // y despachos.tieneDeResponsable(colaborador)
     return true;
@@ -233,11 +238,11 @@ bool CentroDistribucion::puedeEliminarBodega(Bodega* bodega) {
         cout << "Error: la bodega tiene celdas ocupadas." << endl;
         return false;
     }
-    // TODO Integrante 2:
-    // if (paquetes.tieneEnBodega(bodega)) {
-    //     cout << "Error: hay paquetes que tienen asignada esta bodega." << endl;
-    //     return false;
-    // }
+
+     if (paquetes.tieneEnBodega(bodega)) {
+         cout << "Error: hay paquetes que tienen asignada esta bodega." << endl;
+         return false;
+     }
     return true;
 }
 
@@ -261,12 +266,11 @@ ListaBodegas* CentroDistribucion::getBodegas() {
     return &bodegas;
 }
 
-// ============================================
-// PARTE 2 - Integrante 2: paquetes y almacenamiento
-// ============================================
-// TODO Integrante 2: escribir aqui sus metodos.
 
-// ============================================
-// PARTE 3 - Integrante 3: solicitudes y despachos
-// ============================================
-// TODO Integrante 3: escribir aqui sus metodos.
+bool CentroDistribucion::tieneEnBodega(Bodega* bodega) {
+    return paquetes.tieneEnBodega(bodega);
+}
+
+bool CentroDistribucion::tieneDeCliente(Cliente* cliente) {
+    return clientes.tieneEnBodega(cliente);
+}

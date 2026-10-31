@@ -2,7 +2,7 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Cliente.h"
+#include "../Encabezados/Cliente.h"
 #include <iostream>
 #include <sstream>
 using namespace std;

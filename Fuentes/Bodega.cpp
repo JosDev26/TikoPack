@@ -2,7 +2,7 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "Bodega.h"
+#include "../Encabezados/Bodega.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>

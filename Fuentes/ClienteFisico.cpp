@@ -2,7 +2,7 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "ClienteFisico.h"
+#include "../Encabezados/ClienteFisico.h"
 using namespace std;
 
 ClienteFisico::ClienteFisico(string identificacion, string nombre, string telefono, string correo)

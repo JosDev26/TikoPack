@@ -2,38 +2,37 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "ListaBodegas.h"
-#include "Bodega.h"
+#include "../Encabezados/ListaClientes.h"
+#include "../Encabezados/Cliente.h"
 #include <sstream>
 using namespace std;
 
-// ===== NodoBodega =====
 
-NodoBodega::NodoBodega(Bodega* dato) : dato(dato), siguiente(nullptr) {
+NodoCliente::NodoCliente(Cliente* dato) : dato(dato), siguiente(nullptr) {
 }
 
-Bodega* NodoBodega::getDato() {
+Cliente* NodoCliente::getDato() {
     return dato;
 }
 
-NodoBodega* NodoBodega::getSiguiente() {
+NodoCliente* NodoCliente::getSiguiente() {
     return siguiente;
 }
 
-void NodoBodega::setSiguiente(NodoBodega* siguiente) {
+void NodoCliente::setSiguiente(NodoCliente* siguiente) {
     this->siguiente = siguiente;
 }
 
-// ===== ListaBodegas =====
+// ===== ListaClientes =====
 
-ListaBodegas::ListaBodegas() : primero(nullptr), cantidad(0) {
+ListaClientes::ListaClientes() : primero(nullptr), cantidad(0) {
 }
 
 // solo borra los nodos
-ListaBodegas::~ListaBodegas() {
-    NodoBodega* actual = primero;
+ListaClientes::~ListaClientes() {
+    NodoCliente* actual = primero;
     while (actual != nullptr) {
-        NodoBodega* siguiente = actual->getSiguiente();
+        NodoCliente* siguiente = actual->getSiguiente();
         delete actual;
         actual = siguiente;
     }
@@ -41,12 +40,12 @@ ListaBodegas::~ListaBodegas() {
     cantidad = 0;
 }
 
-void ListaBodegas::insertarFinal(Bodega* bodega) {
-    NodoBodega* nuevo = new NodoBodega(bodega);
+void ListaClientes::insertarFinal(Cliente* cliente) {
+    NodoCliente* nuevo = new NodoCliente(cliente);
     if (primero == nullptr) {
         primero = nuevo;
     } else {
-        NodoBodega* actual = primero;
+        NodoCliente* actual = primero;
         while (actual->getSiguiente() != nullptr) {
             actual = actual->getSiguiente();
         }
@@ -55,22 +54,22 @@ void ListaBodegas::insertarFinal(Bodega* bodega) {
     cantidad++;
 }
 
-Bodega* ListaBodegas::buscar(string codigo) {
-    NodoBodega* actual = primero;
+Cliente* ListaClientes::buscar(string identificacion) {
+    NodoCliente* actual = primero;
     while (actual != nullptr) {
-        Bodega* bodega = actual->getDato();
-        if (bodega->getCodigo() == codigo) {
-            return bodega;
+        Cliente* cliente = actual->getDato();
+        if (cliente->getIdentificacion() == identificacion) {
+            return cliente;
         }
         actual = actual->getSiguiente();
     }
     return nullptr;
 }
 
-bool ListaBodegas::eliminar(Bodega* bodega) {
-    NodoBodega* anterior = nullptr;
-    NodoBodega* actual = primero;
-    while (actual != nullptr && actual->getDato() != bodega) {
+bool ListaClientes::eliminar(Cliente* cliente) {
+    NodoCliente* anterior = nullptr;
+    NodoCliente* actual = primero;
+    while (actual != nullptr && actual->getDato() != cliente) {
         anterior = actual;
         actual = actual->getSiguiente();
     }
@@ -82,29 +81,29 @@ bool ListaBodegas::eliminar(Bodega* bodega) {
     } else {
         anterior->setSiguiente(actual->getSiguiente());
     }
-    delete actual;                            // borra el nodo, no la bodega
+    delete actual;                            // borra el nodo, no el cliente
     cantidad--;
     return true;
 }
 
-NodoBodega* ListaBodegas::getPrimero() {
+NodoCliente* ListaClientes::getPrimero() {
     return primero;
 }
 
-int ListaBodegas::getCantidad() {
+int ListaClientes::getCantidad() {
     return cantidad;
 }
 
-bool ListaBodegas::estaVacia() {
+bool ListaClientes::estaVacia() {
     return primero == nullptr;
 }
 
-string ListaBodegas::toString() {
+string ListaClientes::toString() {
     if (estaVacia()) {
-        return "No hay bodegas registradas.\n";
+        return "No hay clientes registrados.\n";
     }
     stringstream ss;
-    NodoBodega* actual = primero;
+    NodoCliente* actual = primero;
     while (actual != nullptr) {
         ss << "------------------------------\n";
         ss << actual->getDato()->toString() << "\n";

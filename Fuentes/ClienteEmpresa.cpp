@@ -2,7 +2,7 @@
 // Created by Usuario on 27/10/2026.
 //
 
-#include "ClienteEmpresa.h"
+#include "../Encabezados/ClienteEmpresa.h"
 #include <sstream>
 #include <iomanip>
 using namespace std;
